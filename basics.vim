@@ -55,8 +55,10 @@ let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
 nmap <F8> :TagbarToggle<CR>
 
 "syntastic
-let g:syntastic_error_symbol='>>'
-let g:syntastic_warning_symbol='>'
+let g:syntastic_error_symbol = "✗"
+let g:syntastic_warning_symbol = "⚠"
+let g:syntastic_style_error_symbol = '!'
+let g:syntastic_style_warning_symbol = '?'
 let g:syntastic_check_on_open=1
 let g:syntastic_check_on_wq=0
 let g:syntastic_enable_highlighting=1
@@ -66,6 +68,8 @@ let g:syntastic_python_checkers=['flake8']
 let g:python_highlight_all=1
 let g:syntastic_cpp_cpplint_exec = 'cpplint'
 let g:syntastic_cpp_checkers = ['cpplint', 'gcc']
+let g:syntastic_aggregate_errors = 1
 let g:syntastic_cpp_compiler = 'clang++'
 let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
+
 
