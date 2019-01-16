@@ -13,3 +13,5 @@ https://github.com/vim-airline/vim-airline
 
 https://github.com/ludovicchabant/vim-gutentags
 
+https://github.com/tpope/vim-commentary
+
