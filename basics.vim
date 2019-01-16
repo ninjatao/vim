@@ -61,8 +61,11 @@ let g:syntastic_check_on_open=1
 let g:syntastic_check_on_wq=0
 let g:syntastic_enable_highlighting=1
 let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_check_on_open = 1
 
 let g:syntastic_python_checkers=['flake8']
 let g:python_highlight_all=1
+let g:syntastic_cpp_cpplint_exec = 'cpplint'
+let g:syntastic_cpp_checkers = ['cpplint', 'gcc']
+let g:syntastic_cpp_compiler = 'clang++'
+let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
 
