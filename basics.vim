@@ -7,7 +7,9 @@ set incsearch
 set hlsearch
 set showmatch
 set noswapfile
-
+filetype plugin on
+filetype indent on
+set autoread
 colorscheme desert
 
 " Use UNIX (\n) line endings.
@@ -22,6 +24,20 @@ au BufNewFile,BufRead *.py
     \ set expandtab |
     \ set autoindent |
     \ set fileformat=unix |
+
+
+if has("mac") || has("macunix")
+    set gfn=IBM\ Plex\ Mono:h14,Hack:h14,Source\ Code\ Pro:h15,Menlo:h15
+elseif has("win16") || has("win32")
+    set gfn=IBM\ Plex\ Mono:h14,Source\ Code\ Pro:h12,Bitstream\ Vera\ Sans\ Mono:h11
+elseif has("gui_gtk2")
+    set gfn=IBM\ Plex\ Mono:h14,:Hack\ 14,Source\ Code\ Pro\ 12,Bitstream\ Vera\ Sans\ Mono\ 11
+elseif has("linux")
+    set gfn=IBM\ Plex\ Mono:h14,:Hack\ 14,Source\ Code\ Pro\ 12,Bitstream\ Vera\ Sans\ Mono\ 11
+elseif has("unix")
+    set gfn=Monospace\ 11
+endif
+
 
 execute pathogen#infect()
 execute pathogen#infect('bundle/{}', '~/.vim_tao/bundle/{}')
@@ -71,5 +87,4 @@ let g:syntastic_cpp_checkers = ['cpplint', 'gcc']
 let g:syntastic_aggregate_errors = 1
 let g:syntastic_cpp_compiler = 'clang++'
 let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
-
 
