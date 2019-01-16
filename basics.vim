@@ -6,6 +6,7 @@ set autochdir
 set incsearch
 set hlsearch
 set showmatch
+set noswapfile
 
 colorscheme desert
 
@@ -14,8 +15,7 @@ au BufNewFile *.py,*.pyw,*.c,*.h *.md  set fileformat=unix
 
 " python indents
 au BufNewFile,BufRead *.py
-    \ 
-" python indentsset tabstop=4 |
+    \ set tabstop=4 |
     \ set softtabstop=4 |
     \ set shiftwidth=4 |
     \ set textwidth=79 |
@@ -63,6 +63,6 @@ let g:syntastic_enable_highlighting=1
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_check_on_open = 1
 
-let g:syntastic_python_checkers=['pylint']
+let g:syntastic_python_checkers=['flake8']
 let g:python_highlight_all=1
 
