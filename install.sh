@@ -1,14 +1,13 @@
 #! /bin/bash
 set -e
 
-install_checker=true
+install_checker=false
 
 for arg in "$@"
     do
-        if [ "$arg" = "-light" ];
+        if [ "$arg" = "-all" -o "$arg" = "-checker" ];
         then
-            echo "light mode"
-            install_checker=false
+            install_checker=true
         fi
     done
 
@@ -22,9 +21,9 @@ workpath=$(cd `dirname $0`; pwd)
 cd $workpath
 git submodule update --init --recursive
 
-workscript=$"set runtimepath+="$workpath
+workscript="set runtimepath+="$workpath
 echo $workscript > ~/.vimrc
-setting=$"source "$workpath$"/basics.vim"
+setting="source "$workpath"/basics.vim"
 echo $setting >> ~/.vimrc
 
 
