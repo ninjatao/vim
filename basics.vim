@@ -226,9 +226,6 @@ let g:ctrlp_working_path_mode = 'ra'
 map <C-n> :NERDTreeToggle<CR>
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") &&b:NERDTree.isTabTree()) | q | endif
 
-"vim-airline
-let g:airline_extensions = []
-
 "vim-gutentags
 let g:gutentags_project_root = ['.root', '.svn', '.git', '.project']
 let g:gutentags_ctags_tagfile = '.tags'
@@ -263,4 +260,10 @@ let g:syntastic_cpp_checkers = ['cpplint', 'gcc']
 let g:syntastic_aggregate_errors = 1
 let g:syntastic_cpp_compiler = 'clang++'
 let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
+
+"vim-commentary
+autocmd FileType python set commentstring=#\ %s
+autocmd FileType java,c,cpp set commentstring=//\ %s
+autocmd FileType sh,shell set commentstring=\"\ %s
+
 

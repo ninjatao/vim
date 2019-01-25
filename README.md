@@ -10,5 +10,4 @@ https://github.com/vim-airline/vim-airline
 https://github.com/ludovicchabant/vim-gutentags
 https://github.com/tpope/vim-commentary
 https://github.com/tpope/vim-fugitive
-https://github.com/majutsushi/tagbar
 https://github.com/vim-syntastic/syntastic
