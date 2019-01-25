@@ -1,6 +1,7 @@
 #! /bin/bash
 set -e
 
+pluginsFullOnly=("bundle/syntastic" "bundle/gutentags")
 install_checker=false
 
 for arg in "$@"
@@ -19,11 +20,22 @@ fi
 
 workpath=$(cd `dirname $0`; pwd)
 cd $workpath
-git submodule update --init --recursive
 
-workscript="set runtimepath+="$workpath
+if [ $install_checker = "false" ];
+then
+    excludeModules=''
+    for mo in "${pluginsFullOnly[@]}"
+    do
+        excludeModules="$excludeModules -c submodule.${mo}.update=none "
+    done
+    git $excludeModules submodule update --init --recursive
+else
+    git submodule update --init --recursive
+fi
+
+workscript="set runtimepath+=$workpath"
 echo $workscript > ~/.vimrc
-setting="source "$workpath"/basics.vim"
+setting="source $workpath/basics.vim"
 echo $setting >> ~/.vimrc
 
 
