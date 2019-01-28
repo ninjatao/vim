@@ -19,3 +19,6 @@
 [submodule "bundle/ale"]
 	path = bundle/ale
 	url = https://github.com/w0rp/ale
+[submodule "bundle/gutentags_plus"]
+	path = bundle/gutentags_plus
+	url = https://github.com/skywind3000/gutentags_plus

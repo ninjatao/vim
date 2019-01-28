@@ -1,7 +1,7 @@
 #! /bin/bash
 set -e
 
-pluginsFullOnly=("bundle/syntastic" "bundle/gutentags")
+pluginsFullOnly=("bundle/ale" "bundle/gutentags" "bundle/gutentags_plus")
 install_checker=false
 
 for arg in "$@"

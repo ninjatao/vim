@@ -11,7 +11,6 @@ set autoread
 " Others
 set autochdir
 
-
 " With a map leader it's possible to do extra key combinations
 " like <leader>w saves the current file
 let mapleader = ","
@@ -226,7 +225,7 @@ let g:ctrlp_working_path_mode = 'ra'
 map <C-n> :NERDTreeToggle<CR>
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") &&b:NERDTree.isTabTree()) | q | endif
 
-"vim-gutentags
+"vim-gutentags & plus
 let g:gutentags_modules = []
 if executable('ctags')
 	let g:gutentags_modules += ['ctags']
