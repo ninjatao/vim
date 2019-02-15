@@ -11,7 +11,6 @@ set autoread
 " Others
 set autochdir
 
-
 " With a map leader it's possible to do extra key combinations
 " like <leader>w saves the current file
 let mapleader = ","
@@ -226,10 +225,17 @@ let g:ctrlp_working_path_mode = 'ra'
 map <C-n> :NERDTreeToggle<CR>
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") &&b:NERDTree.isTabTree()) | q | endif
 
-"vim-gutentags
+"vim-gutentags & plus
+let g:gutentags_modules = []
+if executable('ctags')
+	let g:gutentags_modules += ['ctags']
+endif
+if executable('gtags-cscope') && executable('gtags')
+	let g:gutentags_modules += ['gtags_cscope']
+endif
+
 let g:gutentags_project_root = ['.root', '.svn', '.git', '.project']
 let g:gutentags_ctags_tagfile = '.tags'
-
 let s:vim_tags = expand('~/.cache/tags')
 let g:gutentags_cache_dir = s:vim_tags
 if !isdirectory(s:vim_tags)
@@ -237,29 +243,43 @@ if !isdirectory(s:vim_tags)
 endif
 
 let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q']
-let g:gutentags_ctags_extra_args += ['--c++-kinds=+pxI']
+let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
 let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
+" let g:gutentags_trace = 1
+" let g:gutentags_ctags_extra_args += ['--output-format=e-ctags']
 
 "tagbar
 nmap <F8> :TagbarToggle<CR>
 
-"syntastic
-let g:syntastic_error_symbol = "✗"
-let g:syntastic_warning_symbol = "⚠"
-let g:syntastic_style_error_symbol = '!'
-let g:syntastic_style_warning_symbol = '?'
-let g:syntastic_check_on_open=1
-let g:syntastic_check_on_wq=0
-let g:syntastic_enable_highlighting=1
-let g:syntastic_always_populate_loc_list = 1
+" ale
+let g:ale_sign_column_always = 1
+let g:ale_set_highlights = 1
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_insert_leave = 1
+let g:ale_sign_error = '✗'
+let g:ale_sign_warning = '⚡'
 
-let g:syntastic_python_checkers=['flake8']
-let g:python_highlight_all=1
-let g:syntastic_cpp_cpplint_exec = 'cpplint'
-let g:syntastic_cpp_checkers = ['cpplint', 'gcc']
-let g:syntastic_aggregate_errors = 1
-let g:syntastic_cpp_compiler = 'clang++'
-let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
+let g:ale_statusline_format = ['✗ %d', '⚡ %d', '✔ OK']
+let g:ale_echo_msg_error_str = 'E'
+let g:ale_echo_msg_warning_str = 'W'
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+
+nmap sp <Plug>(ale_previous_wrap)
+nmap sn <Plug>(ale_next_wrap)
+
+nmap <Leader>s :ALEToggle<CR>
+nmap <Leader>d :ALEDetail<CR>
+let g:ale_linters = {
+\   'c++': ['clang', 'gcc'],
+\   'c': ['clang'],
+\   'python': ['pylint', 'flake8'],
+\   'vim' : ['vint'],
+\}
+
+let g:ale_fixers = {
+\   '*': ['remove_trailing_lines','trim_whitespace' ],
+\   'python': ['autopep8'],
+\}
 
 "vim-commentary
 autocmd FileType python set commentstring=#\ %s
