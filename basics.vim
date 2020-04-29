@@ -147,6 +147,12 @@ set wrap "Wrap lines
 
 
 """"""""""""""""""""""""""""""
+" => Insert mode related
+""""""""""""""""""""""""""""""
+" qq for ESC
+inoremap qq <ESC>
+
+""""""""""""""""""""""""""""""
 " => Visual mode related
 """"""""""""""""""""""""""""""
 " Visual mode pressing * or # searches for the current selection
