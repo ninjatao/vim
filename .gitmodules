@@ -13,3 +13,6 @@
 [submodule "bundle/ale"]
 	path = bundle/ale
     url = https://github.com/w0rp/ale
+[submodule "bundle/AutoComplPop"]
+	path = bundle/AutoComplPop
+	url = git://github.com/vim-scripts/AutoComplPop
