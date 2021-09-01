@@ -1,7 +1,7 @@
 #! /bin/bash
 set -e
 
-pluginsFullOnly=("bundle/ale" "bundle/gutentags" "bundle/gutentags_plus")
+pluginsFullOnly=("bundle/ale")
 install_checker=false
 
 for arg in "$@"
@@ -37,5 +37,4 @@ workscript="set runtimepath+=$workpath"
 echo $workscript > ~/.vimrc
 setting="source $workpath/basics.vim"
 echo $setting >> ~/.vimrc
-
 
