@@ -14,8 +14,9 @@ for arg in "$@"
 
 if [ $install_checker = "true" ];
 then
-    pip install flake8
-    pip install cpplint
+    pip3 install flake8
+    pip3 install cpplint
+    pip3 install ipdb
 fi
 
 workpath=$(cd `dirname $0`; pwd)

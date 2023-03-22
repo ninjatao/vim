@@ -147,12 +147,6 @@ set wrap "Wrap lines
 
 
 """"""""""""""""""""""""""""""
-" => Insert mode related
-""""""""""""""""""""""""""""""
-" qq for ESC
-inoremap qq <ESC>
-
-""""""""""""""""""""""""""""""
 " => Visual mode related
 """"""""""""""""""""""""""""""
 " Visual mode pressing * or # searches for the current selection
@@ -184,13 +178,15 @@ let g:lasttab = 1
 nmap <Leader>tl :exe "tabn ".g:lasttab<CR>
 au TabLeave * let g:lasttab = tabpagenr()
 
-
 " Opens a new tab with the current buffer's path
 " Super useful when editing files in the same directory
 map <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
 
 " Switch CWD to the directory of the open buffer
 map <leader>cd :cd %:p:h<cr>:pwd<cr>
+
+" python3
+let g:pymode_python = 'python3'
 
 " Specify the behavior when switching between buffers 
 try
@@ -221,7 +217,6 @@ if has("autocmd")
 endif
 
 execute pathogen#infect()
-execute pathogen#infect('bundle/{}', '~/.vim_tao/bundle/{}')
 
 "ctrlp
 let g:ctrlp_map = '<c-p>'
@@ -231,14 +226,12 @@ let g:ctrlp_working_path_mode = 'ra'
 map <C-n> :NERDTreeToggle<CR>
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") &&b:NERDTree.isTabTree()) | q | endif
 
-"tagbar
-nmap <F8> :TagbarToggle<CR>
-
 " ale
 let g:ale_sign_column_always = 1
 let g:ale_set_highlights = 1
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_lint_on_insert_leave = 1
+let g:ale_lint_on_insert_enter = 1
 let g:ale_sign_error = '✗'
 let g:ale_sign_warning = '⚡'
 
@@ -247,13 +240,10 @@ let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
 let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
 
-nmap sp <Plug>(ale_previous_wrap)
-nmap sn <Plug>(ale_next_wrap)
-
 nmap <Leader>s :ALEToggle<CR>
 nmap <Leader>d :ALEDetail<CR>
 let g:ale_linters = {
-\   'c++': ['clang', 'gcc'],
+\   'c++': ['clang', 'cpplint'],
 \   'c': ['clang'],
 \   'python': ['pylint', 'flake8'],
 \   'vim' : ['vint'],
@@ -268,3 +258,28 @@ let g:ale_fixers = {
 autocmd FileType python set commentstring=#\ %s
 autocmd FileType java,c,cpp set commentstring=//\ %s
 autocmd FileType sh,shell set commentstring=\"\ %s
+
+"""""""""""""""""""""" "Quickly Run """"""""""""""""""""""
+map <F5> :call CompileRunGcc()<CR>
+func! CompileRunGcc()
+    exec "w"
+    if &filetype == 'c'
+        exec "!g++ % -o %<"
+        exec "!time ./%<"
+    elseif &filetype == 'cpp'
+        exec "!g++ % -o %<"
+        exec "!time ./%<"
+    elseif &filetype == 'sh'
+        :!time bash %
+    elseif &filetype == 'python'
+        exec "!time python3 %"
+    endif
+endfunc
+
+map <F6> :call DebugRunGcc()<CR>
+func! DebugRunGcc()
+    exec "w"
+    if &filetype == 'python'
+        exec "!time python3 -m ipdb %"
+    endif
+endfunc
