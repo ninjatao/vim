@@ -16,6 +16,3 @@
 [submodule "bundle/AutoComplPop"]
 	path = bundle/AutoComplPop
 	url = git://github.com/vim-scripts/AutoComplPop
-[submodule "bundle/kotlin-vim"]
-	path = bundle/kotlin-vim
-	url = git://github.com/udalov/kotlin-vim
