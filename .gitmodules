@@ -15,4 +15,7 @@
     url = https://github.com/w0rp/ale
 [submodule "bundle/AutoComplPop"]
 	path = bundle/AutoComplPop
-	url = git://github.com/vim-scripts/AutoComplPop
+    url = git://github.com/vim-scripts/AutoComplPop
+[submodule "bundle/vista.vim"]
+	path = bundle/vista.vim
+	url = https://github.com/liuchengxu/vista.vim.git
