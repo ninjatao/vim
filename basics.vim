@@ -227,32 +227,32 @@ map <C-n> :NERDTreeToggle<CR>
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") &&b:NERDTree.isTabTree()) | q | endif
 
 " ale
-let g:ale_sign_column_always = 1
-let g:ale_set_highlights = 1
+let g:ale_sign_column_always = 0
+let g:ale_set_highlights = 0
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_lint_on_insert_leave = 1
 let g:ale_lint_on_insert_enter = 1
 let g:ale_sign_error = '✗'
 let g:ale_sign_warning = '⚡'
-
+let g:ale_virtualtext_cursor = 'disabled'
 let g:ale_statusline_format = ['✗ %d', '⚡ %d', '✔ OK']
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
 let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
 
-nmap <Leader>s :ALEToggle<CR>
-nmap <Leader>d :ALEDetail<CR>
 let g:ale_linters = {
 \   'c++': ['clang', 'cpplint'],
 \   'c': ['clang'],
-\   'python': ['pylint', 'flake8'],
+\   'python': ['pylint'],
 \   'vim' : ['vint'],
 \}
 
 let g:ale_fixers = {
 \   '*': ['remove_trailing_lines','trim_whitespace' ],
-\   'python': ['autopep8'],
 \}
+
+let g:ale_python_pylint_options =
+\"--variable-naming-style=camelCase --generated-members='cv2.*'"
 
 "vim-commentary
 autocmd FileType python set commentstring=#\ %s
