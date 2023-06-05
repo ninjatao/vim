@@ -84,12 +84,6 @@ set novisualbell
 set t_vb=
 set tm=500
 
-" Properly disable sound on errors on MacVim
-if has("gui_macvim")
-    autocmd GUIEnter * set vb t_vb=
-endif
-
-
 " Add a bit extra margin to the left
 set foldcolumn=1
 
@@ -165,13 +159,6 @@ map <leader>ba :bufdo bd<cr>
 
 map <leader>l :bnext<cr>
 map <leader>h :bprevious<cr>
-
-" Useful mappings for managing tabs
-map <leader>tn :tabnew<cr>
-map <leader>to :tabonly<cr>
-map <leader>tc :tabclose<cr>
-map <leader>tm :tabmove 
-map <leader>t<leader> :tabnext 
 
 " Let 'tl' toggle between this and the last accessed tab
 let g:lasttab = 1
@@ -260,22 +247,19 @@ autocmd FileType java,c,cpp set commentstring=//\ %s
 autocmd FileType sh,shell set commentstring=\"\ %s
 
 "gutentags
-let g:gutentags_project_root = ['.root', '.git', '.svn', '.project', '.hg', '.bzr', '_darcs']
-let g:gutentags_ctags_tagfile = '.tags'
-
-let g:gutentags_modules = []
-if executable('ctags')
-	let g:gutentags_modules += ['ctags']
-endif
-if executable('gtags-cscope') && executable('gtags')
-	let g:gutentags_modules += ['gtags_cscope']
-endif
-
-let g:gutentags_cache_dir = expand('~/.cache/tags')
 let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q']
 let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
 let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
 let g:gutentags_ctags_extra_args += ['--output-format=e-ctags']
+let s:vim_tags = expand('~/.cache/tags')
+let g:gutentags_cache_dir = s:vim_tags
+if !isdirectory(s:vim_tags)
+   silent! call mkdir(s:vim_tags, 'p')
+endif
+
+"YouCompleteMe
+let g:ycm_key_list_select_completion = (['<Down>'])
+let g:ycm_key_list_previous_completion =(['<Up>'] )
 
 """""""""""""""""""""" "Quickly Run """"""""""""""""""""""
 map <F5> :call CompileRunGcc()<CR>

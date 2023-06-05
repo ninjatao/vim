@@ -25,3 +25,6 @@
 [submodule "bundle/YouCompleteMe"]
 	path = bundle/YouCompleteMe
 	url = https://github.com/ycm-core/YouCompleteMe
+[submodule "bundle/LeaderF"]
+	path = bundle/LeaderF
+	url = https:/github.com/Yggdroot/LeaderF

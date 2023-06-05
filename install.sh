@@ -15,10 +15,9 @@ for arg in "$@"
 if [ $install_checker = "true" ];
 then
     pip3 install pylint
-    pip3 install flake8
     pip3 install cpplint
     pip3 install ipdb
-    brew install cmake go nodejs
+    brew install cmake go nodejs rg
 fi
 
 workpath=$(cd `dirname $0`; pwd)
