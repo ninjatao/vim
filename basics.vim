@@ -259,6 +259,24 @@ autocmd FileType python set commentstring=#\ %s
 autocmd FileType java,c,cpp set commentstring=//\ %s
 autocmd FileType sh,shell set commentstring=\"\ %s
 
+"gutentags
+let g:gutentags_project_root = ['.root', '.git', '.svn', '.project', '.hg', '.bzr', '_darcs']
+let g:gutentags_ctags_tagfile = '.tags'
+
+let g:gutentags_modules = []
+if executable('ctags')
+	let g:gutentags_modules += ['ctags']
+endif
+if executable('gtags-cscope') && executable('gtags')
+	let g:gutentags_modules += ['gtags_cscope']
+endif
+
+let g:gutentags_cache_dir = expand('~/.cache/tags')
+let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q']
+let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
+let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
+let g:gutentags_ctags_extra_args += ['--output-format=e-ctags']
+
 """""""""""""""""""""" "Quickly Run """"""""""""""""""""""
 map <F5> :call CompileRunGcc()<CR>
 func! CompileRunGcc()

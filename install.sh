@@ -18,6 +18,7 @@ then
     pip3 install flake8
     pip3 install cpplint
     pip3 install ipdb
+    brew install cmake go nodejs
 fi
 
 workpath=$(cd `dirname $0`; pwd)
@@ -34,6 +35,9 @@ then
 else
     git submodule update --init --recursive
 fi
+
+cd $workpath/bundle/YouCompleteMe
+python3 install.py
 
 workscript="set runtimepath+=$workpath"
 echo $workscript > ~/.vimrc
