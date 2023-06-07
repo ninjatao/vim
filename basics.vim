@@ -13,7 +13,7 @@ set autochdir
 
 " With a map leader it's possible to do extra key combinations
 " like <leader>w saves the current file
-let mapleader = ","
+let mapleader = "`"
 
 " Fast saving
 nmap <leader>w :w!<cr>
@@ -188,9 +188,6 @@ au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g
 " Always show the status line
 set laststatus=2
 
-" Format the status line
-set statusline=\ %{HasPaste()}%F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ Line:\ %l\ \ Column:\ %c
-
 fun! CleanExtraSpaces()
     let save_cursor = getpos(".")
     let old_query = getreg('/')
@@ -204,10 +201,6 @@ if has("autocmd")
 endif
 
 execute pathogen#infect()
-
-"ctrlp
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_working_path_mode = 'ra'
 
 "nerdtree
 map <C-n> :NERDTreeToggle<CR>
@@ -260,6 +253,10 @@ endif
 "YouCompleteMe
 let g:ycm_key_list_select_completion = (['<Down>'])
 let g:ycm_key_list_previous_completion =(['<Up>'] )
+
+"LeaderF
+let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
+noremap <Leader>r :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR><CR>
 
 """""""""""""""""""""" "Quickly Run """"""""""""""""""""""
 map <F5> :call CompileRunGcc()<CR>
