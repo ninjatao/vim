@@ -6,7 +6,7 @@ install_checker=false
 
 for arg in "$@"
     do
-        if [ "$arg" = "-all" -o "$arg" = "-checker" ];
+        if [ "$arg" = "-all" -o "$arg" = "-init" ];
         then
             install_checker=true
         fi
@@ -14,16 +14,16 @@ for arg in "$@"
 
 if [ $install_checker = "true" ];
 then
-    pip3 install pylint
-    pip3 install cpplint
-    pip3 install ipdb
+    pip install pylint
+    pip install cpplint
+    pip install ipdb
     brew install cmake go nodejs rg
 fi
 
 workpath=$(cd `dirname $0`; pwd)
 cd $workpath
 
-if [ $install_checker = "false" ];
+if [ $install_checker = "true" ];
 then
     excludeModules=''
     for mo in "${pluginsFullOnly[@]}"
@@ -31,12 +31,11 @@ then
         excludeModules="$excludeModules -c submodule.${mo}.update=none "
     done
     git $excludeModules submodule update --init --recursive
+    cd $workpath/bundle/YouCompleteMe
+    /usr/local/bin/python3 install.py
 else
     git submodule update --init --recursive
 fi
-
-cd $workpath/bundle/YouCompleteMe
-python3 install.py
 
 workscript="set runtimepath+=$workpath"
 echo $workscript > ~/.vimrc

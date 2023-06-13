@@ -13,34 +13,32 @@ set autochdir
 
 " With a map leader it's possible to do extra key combinations
 " like <leader>w saves the current file
-let mapleader = "`"
+let mapleader = "\\"
 
 " Fast saving
-nmap <leader>w :w!<cr>
+nmap <leader>w :w!<CR>
 
 " :W sudo saves the file 
 " (useful for handling the permission-denied error)
 command W w !sudo tee % > /dev/null
 
-" Set 7 lines to the cursor - when moving vertically using j/k
-set so=7
+" Set cursor always in the middle of screen.
+set scrolloff=999
 
 " Avoid garbled characters in Chinese language windows OS
 let $LANG='en' 
-set langmenu=en
-source $VIMRUNTIME/delmenu.vim
-source $VIMRUNTIME/menu.vim
-
-" Turn on the Wild menu
-set wildmenu
 
 " Ignore compiled files
-set wildignore=*.o,*~,*.pyc
+set wildignore=*.o,*~,*.pyc,*.tag
 if has("win16") || has("win32")
     set wildignore+=.git\*,.hg\*,.svn\*
 else
     set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
 endif
+
+" Map S-Up to scrol half screen up, S-Down to scroll half screen down
+map <S-Up> <C-U>
+map <S-Down> <C-D>
 
 "Always show current position
 set ruler
@@ -53,7 +51,7 @@ set hid
 
 " Configure backspace so it acts as it should act
 set backspace=eol,start,indent
-set whichwrap+=<,>,h,l
+set whichwrap+=<,>,[,]
 
 " Ignore case when searching
 set ignorecase
@@ -67,9 +65,6 @@ set hlsearch
 " Makes search act like search in modern browsers
 set incsearch 
 
-" Don't redraw while executing macros (good performance config)
-set lazyredraw 
-
 " For regular expressions turn magic on
 set magic
 
@@ -78,14 +73,11 @@ set showmatch
 " How many tenths of a second to blink when matching brackets
 set mat=2
 
-" No annoying sound on errors
-set noerrorbells
-set novisualbell
-set t_vb=
-set tm=500
-
 " Add a bit extra margin to the left
-set foldcolumn=1
+set foldcolumn=0
+
+" Display line number
+set number
 
 " Enable syntax highlighting
 syntax enable 
@@ -95,12 +87,7 @@ if $COLORTERM == 'gnome-terminal'
     set t_Co=256
 endif
 
-try
-    colorscheme peaksea
-catch
-endtry
-
-set background=dark
+set background=light
 
 " Set extra options when running in GUI mode
 if has("gui_running")
@@ -116,10 +103,8 @@ set encoding=utf8
 " Use Unix as the standard file type
 set ffs=unix,dos,mac
 
-" Turn backup off, since most stuff is in SVN, git et.c anyway...
-set nobackup
-set nowb
-set noswapfile
+" backup files
+set writebackup
 
 " Use spaces instead of tabs
 set expandtab
@@ -139,41 +124,8 @@ set ai "Auto indent
 set si "Smart indent
 set wrap "Wrap lines
 
-
-""""""""""""""""""""""""""""""
-" => Visual mode related
-""""""""""""""""""""""""""""""
-" Visual mode pressing * or # searches for the current selection
-" Super useful! From an idea by Michael Naumann
-vnoremap <silent> * :<C-u>call VisualSelection('', '')<CR>/<C-R>=@/<CR><CR>
-vnoremap <silent> # :<C-u>call VisualSelection('', '')<CR>?<C-R>=@/<CR><CR>
-
 " Disable highlight when <leader><cr> is pressed
-map <silent> <leader><cr> :noh<cr>
-
-" Close the current buffer
-map <leader>bd :Bclose<cr>:tabclose<cr>gT
-
-" Close all the buffers
-map <leader>ba :bufdo bd<cr>
-
-map <leader>l :bnext<cr>
-map <leader>h :bprevious<cr>
-
-" Let 'tl' toggle between this and the last accessed tab
-let g:lasttab = 1
-nmap <Leader>tl :exe "tabn ".g:lasttab<CR>
-au TabLeave * let g:lasttab = tabpagenr()
-
-" Opens a new tab with the current buffer's path
-" Super useful when editing files in the same directory
-map <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
-
-" Switch CWD to the directory of the open buffer
-map <leader>cd :cd %:p:h<cr>:pwd<cr>
-
-" python3
-let g:pymode_python = 'python3'
+map <silent> <leader><CR> :noh<CR>
 
 " Specify the behavior when switching between buffers 
 try
@@ -187,6 +139,12 @@ au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g
 
 " Always show the status line
 set laststatus=2
+
+" Use ctrl+c to copy selection into system clipboard
+noremap <c-c> "+y
+
+" Use ctrl+v to paste from system clipboard
+noremap <c-v> "+gP
 
 fun! CleanExtraSpaces()
     let save_cursor = getpos(".")
@@ -204,7 +162,8 @@ execute pathogen#infect()
 
 "nerdtree
 map <C-n> :NERDTreeToggle<CR>
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") &&b:NERDTree.isTabTree()) | q | endif
+autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') &&
+      \ b:NERDTree.isTabTree() | quit | endif
 
 " ale
 let g:ale_sign_column_always = 0
@@ -232,7 +191,7 @@ let g:ale_fixers = {
 \}
 
 let g:ale_python_pylint_options =
-\"--variable-naming-style=camelCase --generated-members='cv2.*'"
+\"--generated-members='cv2.*' --disable=C0103,C0114,C0116"
 
 "vim-commentary
 autocmd FileType python set commentstring=#\ %s
@@ -255,8 +214,34 @@ let g:ycm_key_list_select_completion = (['<Down>'])
 let g:ycm_key_list_previous_completion =(['<Up>'] )
 
 "LeaderF
+let g:Lf_RootMarkers = ['.git', '.svn', '.root']
+let g:Lf_WorkingDirectoryMode = 'Ac'
 let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
+let g:Lf_PreviewResult = {'Function': 0, 'rg': 0 }
 noremap <Leader>r :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR><CR>
+let g:Lf_RgConfig = [
+        \ "--iglob '!site-packages'",
+        \ "--iglob '!*.map'",
+        \ ]
+
+"Colorscheme
+autocmd vimenter * ++nested colorscheme gruvbox
+set termguicolors
+
+" lightline
+let g:lightline = {
+      \ 'colorscheme': 'materia',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ], [ 'readonly', 'filename', 'fugitive', 'modified' ] ] },
+		  \ 'component_function': {
+		  \   'fugitive': 'LightlineFugitive' }
+      \ }
+function! LightlineFugitive()
+	if exists('*FugitiveHead')
+		return FugitiveHead()
+	endif
+		return ''
+endfunction
 
 """""""""""""""""""""" "Quickly Run """"""""""""""""""""""
 map <F5> :call CompileRunGcc()<CR>
@@ -271,7 +256,7 @@ func! CompileRunGcc()
     elseif &filetype == 'sh'
         :!time bash %
     elseif &filetype == 'python'
-        exec "!time python3 %"
+        exec "!time python %"
     endif
 endfunc
 
@@ -279,6 +264,6 @@ map <F6> :call DebugRunGcc()<CR>
 func! DebugRunGcc()
     exec "w"
     if &filetype == 'python'
-        exec "!time python3 -m ipdb %"
+        exec "!time python -m ipdb %"
     endif
 endfunc
