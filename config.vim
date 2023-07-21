@@ -1,3 +1,5 @@
+"vim configs
+
 " Sets how many lines of history VIM has to remember
 set history=500
 
@@ -158,30 +160,30 @@ if has("autocmd")
     autocmd BufWritePre *.txt,*.js,*.py,*.wiki,*.sh,*.coffee :call CleanExtraSpaces()
 endif
 
-execute pathogen#infect()
+"end of vim configs
+
+"vim-plug
+
+call plug#begin()
 
 "nerdtree
+Plug 'scrooloose/nerdtree'
 map <C-n> :NERDTreeToggle<CR>
 autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') &&
       \ b:NERDTree.isTabTree() | quit | endif
 
 " ale
-let g:ale_sign_column_always = 0
-let g:ale_set_highlights = 0
-let g:ale_lint_on_text_changed = 'never'
-let g:ale_lint_on_insert_leave = 1
-let g:ale_lint_on_insert_enter = 1
+Plug 'dense-analysis/ale'
+let g:ale_sign_column_always = 1
+let g:ale_lint_on_leave = 1
+let g:ale_lint_on_enter = 1
 let g:ale_sign_error = '✗'
 let g:ale_sign_warning = '⚡'
 let g:ale_virtualtext_cursor = 'disabled'
-let g:ale_statusline_format = ['✗ %d', '⚡ %d', '✔ OK']
-let g:ale_echo_msg_error_str = 'E'
-let g:ale_echo_msg_warning_str = 'W'
-let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+let g:ale_echo_msg_format = '[%linter%-%severity%] :%s'
+let g:ale_python_pylint_change_directory = 1
 
 let g:ale_linters = {
-\   'c++': ['clang', 'cpplint'],
-\   'c': ['clang'],
 \   'python': ['pylint'],
 \   'vim' : ['vint'],
 \}
@@ -194,11 +196,13 @@ let g:ale_python_pylint_options =
 \"--generated-members='cv2.*' --disable=C0103,C0114,C0116"
 
 "vim-commentary
+Plug 'tpope/vim-commentary'
 autocmd FileType python set commentstring=#\ %s
 autocmd FileType java,c,cpp set commentstring=//\ %s
 autocmd FileType sh,shell set commentstring=\"\ %s
 
 "gutentags
+Plug 'ludovicchabant/vim-gutentags'
 let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q']
 let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
 let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
@@ -210,10 +214,12 @@ if !isdirectory(s:vim_tags)
 endif
 
 "YouCompleteMe
+Plug 'ycm-core/YouCompleteMe', {'do' : '/usr/local/bin/python3 install.py'}
 let g:ycm_key_list_select_completion = (['<Down>'])
 let g:ycm_key_list_previous_completion =(['<Up>'] )
 
 "LeaderF
+Plug 'Yggdroot/LeaderF'
 let g:Lf_RootMarkers = ['.git', '.svn', '.root']
 let g:Lf_WorkingDirectoryMode = 'Ac'
 let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
@@ -225,10 +231,12 @@ let g:Lf_RgConfig = [
         \ ]
 
 "Colorscheme
+Plug 'morhetz/gruvbox'
 autocmd vimenter * ++nested colorscheme gruvbox
 set termguicolors
 
 " lightline
+Plug 'itchyny/lightline.vim'
 let g:lightline = {
       \ 'colorscheme': 'materia',
       \ 'active': {
@@ -243,7 +251,13 @@ function! LightlineFugitive()
 		return ''
 endfunction
 
-"""""""""""""""""""""" "Quickly Run """"""""""""""""""""""
+Plug 'github/copilot.vim'
+Plug 'tpope/vim-fugitive'
+
+call plug#end()
+"end of vim-plug
+
+" custom functions
 map <F5> :call CompileRunGcc()<CR>
 func! CompileRunGcc()
     exec "w"
@@ -267,3 +281,4 @@ func! DebugRunGcc()
         exec "!time python -m ipdb %"
     endif
 endfunc
+" end of custom functions
