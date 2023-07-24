@@ -7,18 +7,12 @@ set history=500
 filetype plugin on
 filetype indent on
 
-" Set to auto read when a file is changed from the outside
 set autoread
-
-" Others
 set autochdir
 
 " With a map leader it's possible to do extra key combinations
 " like <leader>w saves the current file
 let mapleader = "\\"
-
-" Fast saving
-nmap <leader>w :w!<CR>
 
 " :W sudo saves the file 
 " (useful for handling the permission-denied error)
@@ -39,8 +33,8 @@ else
 endif
 
 " Map S-Up to scrol half screen up, S-Down to scroll half screen down
-map <S-Up> <C-U>
-map <S-Down> <C-D>
+nnoremap <S-Up> <C-U>
+nnoremap <S-Down> <C-D>
 
 "Always show current position
 set ruler
@@ -55,16 +49,10 @@ set hid
 set backspace=eol,start,indent
 set whichwrap+=<,>,[,]
 
-" Ignore case when searching
+" Searching
 set ignorecase
-
-" When searching try to be smart about cases 
 set smartcase
-
-" Highlight search results
 set hlsearch
-
-" Makes search act like search in modern browsers
 set incsearch 
 
 " For regular expressions turn magic on
@@ -72,7 +60,6 @@ set magic
 
 " Show matching brackets when text indicator is over them
 set showmatch 
-" How many tenths of a second to blink when matching brackets
 set mat=2
 
 " Add a bit extra margin to the left
@@ -125,6 +112,7 @@ set tw=500
 set ai "Auto indent
 set si "Smart indent
 set wrap "Wrap lines
+set timeoutlen=400 "Quicker ESC
 
 " Disable highlight when <leader><cr> is pressed
 map <silent> <leader><CR> :noh<CR>
@@ -144,7 +132,6 @@ set laststatus=2
 
 " Use ctrl+c to copy selection into system clipboard
 noremap <c-c> "+y
-
 " Use ctrl+v to paste from system clipboard
 noremap <c-v> "+gP
 
@@ -159,11 +146,9 @@ endfun
 if has("autocmd")
     autocmd BufWritePre *.txt,*.js,*.py,*.wiki,*.sh,*.coffee :call CleanExtraSpaces()
 endif
-
 "end of vim configs
 
 "vim-plug
-
 call plug#begin()
 
 "nerdtree
@@ -172,34 +157,12 @@ map <C-n> :NERDTreeToggle<CR>
 autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') &&
       \ b:NERDTree.isTabTree() | quit | endif
 
-" ale
-Plug 'dense-analysis/ale'
-let g:ale_sign_column_always = 1
-let g:ale_lint_on_leave = 1
-let g:ale_lint_on_enter = 1
-let g:ale_sign_error = '✗'
-let g:ale_sign_warning = '⚡'
-let g:ale_virtualtext_cursor = 'disabled'
-let g:ale_echo_msg_format = '[%linter%-%severity%] :%s'
-let g:ale_python_pylint_change_directory = 1
-
-let g:ale_linters = {
-\   'python': ['pylint'],
-\   'vim' : ['vint'],
-\}
-
-let g:ale_fixers = {
-\   '*': ['remove_trailing_lines','trim_whitespace' ],
-\}
-
-let g:ale_python_pylint_options =
-\"--generated-members='cv2.*' --disable=C0103,C0114,C0116"
-
 "vim-commentary
 Plug 'tpope/vim-commentary'
 autocmd FileType python set commentstring=#\ %s
 autocmd FileType java,c,cpp set commentstring=//\ %s
 autocmd FileType sh,shell set commentstring=\"\ %s
+autocmd FileType json set commentstring=//\ %s
 
 "gutentags
 Plug 'ludovicchabant/vim-gutentags'
@@ -213,13 +176,33 @@ if !isdirectory(s:vim_tags)
    silent! call mkdir(s:vim_tags, 'p')
 endif
 
-"YouCompleteMe
-Plug 'ycm-core/YouCompleteMe', {'do' : '/usr/local/bin/python3 install.py'}
-let g:ycm_key_list_select_completion = (['<Down>'])
-let g:ycm_key_list_previous_completion =(['<Up>'] )
+" coc.nvim
+Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-json coc-pyright'}
+
+set updatetime=300
+set signcolumn=yes
+
+" Make <CR> to accept selected completion item or notify coc.nvim to format
+" <C-g>u breaks current undo, please make your own choice
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+" Use `[g` and `]g` to navigate diagnostics
+" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+" GoTo code navigation
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Symbol renaming
+nmap <leader>rn <Plug>(coc-rename)
 
 "LeaderF
-Plug 'Yggdroot/LeaderF'
+Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
 let g:Lf_RootMarkers = ['.git', '.svn', '.root']
 let g:Lf_WorkingDirectoryMode = 'Ac'
 let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
