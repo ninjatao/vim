@@ -1,7 +1,5 @@
 {
-    // set python path
     "python.pythonPath": "/usr/local/Caskroom/miniforge/base/envs/python310/bin/python",
-    "python.jediEnabled": true,
     "pyright.inlayHints.variableTypes": false,
     "pyright.inlayHints.functionReturnTypes": false,
     "python.linting.pylintEnabled": true,

@@ -14,7 +14,7 @@ set autochdir
 " like <leader>w saves the current file
 let mapleader = "\\"
 
-" :W sudo saves the file 
+" :W sudo saves the file
 " (useful for handling the permission-denied error)
 command W w !sudo tee % > /dev/null
 
@@ -22,7 +22,7 @@ command W w !sudo tee % > /dev/null
 set scrolloff=999
 
 " Avoid garbled characters in Chinese language windows OS
-let $LANG='en' 
+let $LANG='en'
 
 " Ignore compiled files
 set wildignore=*.o,*~,*.pyc,*.tag
@@ -33,8 +33,8 @@ else
 endif
 
 " Map S-Up to scrol half screen up, S-Down to scroll half screen down
-nnoremap <S-Up> <C-U>
-nnoremap <S-Down> <C-D>
+nmap <S-Up> <C-U>
+nmap <S-Down> <C-D>
 
 "Always show current position
 set ruler
@@ -53,13 +53,13 @@ set whichwrap+=<,>,[,]
 set ignorecase
 set smartcase
 set hlsearch
-set incsearch 
+set incsearch
 
 " For regular expressions turn magic on
 set magic
 
 " Show matching brackets when text indicator is over them
-set showmatch 
+set showmatch
 set mat=2
 
 " Add a bit extra margin to the left
@@ -69,22 +69,14 @@ set foldcolumn=0
 set number
 
 " Enable syntax highlighting
-syntax enable 
+syntax enable
 
-" Enable 256 colors palette in Gnome Terminal
-if $COLORTERM == 'gnome-terminal'
-    set t_Co=256
-endif
+" Set ColorScheme
+set termguicolors
+colorscheme retrobox
 
-set background=light
-
-" Set extra options when running in GUI mode
-if has("gui_running")
-    set guioptions-=T
-    set guioptions-=e
-    set t_Co=256
-    set guitablabel=%M\ %t
-endif
+"Enable mouse
+set mouse=nvi
 
 " Set utf8 as standard encoding and en_US as the standard language
 set encoding=utf8
@@ -112,12 +104,12 @@ set tw=500
 set ai "Auto indent
 set si "Smart indent
 set wrap "Wrap lines
-set timeoutlen=400 "Quicker ESC
+set timeoutlen=600 "Quicker ESC
 
 " Disable highlight when <leader><cr> is pressed
 map <silent> <leader><CR> :noh<CR>
 
-" Specify the behavior when switching between buffers 
+" Specify the behavior when switching between buffers
 try
   set switchbuf=useopen,usetab,newtab
   set stal=2
@@ -135,17 +127,6 @@ noremap <c-c> "+y
 " Use ctrl+v to paste from system clipboard
 noremap <c-v> "+gP
 
-fun! CleanExtraSpaces()
-    let save_cursor = getpos(".")
-    let old_query = getreg('/')
-    silent! %s/\s\+$//e
-    call setpos('.', save_cursor)
-    call setreg('/', old_query)
-endfun
-
-if has("autocmd")
-    autocmd BufWritePre *.txt,*.js,*.py,*.wiki,*.sh,*.coffee :call CleanExtraSpaces()
-endif
 "end of vim configs
 
 "vim-plug
@@ -160,16 +141,12 @@ autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTr
 "vim-commentary
 Plug 'tpope/vim-commentary'
 autocmd FileType python set commentstring=#\ %s
-autocmd FileType java,c,cpp set commentstring=//\ %s
+autocmd FileType java,c,cpp,json set commentstring=//\ %s
 autocmd FileType sh,shell set commentstring=\"\ %s
-autocmd FileType json set commentstring=//\ %s
 
 "gutentags
 Plug 'ludovicchabant/vim-gutentags'
-let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q']
-let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
-let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
-let g:gutentags_ctags_extra_args += ['--output-format=e-ctags']
+let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q', '--c++-kinds=+px', '--c-kinds=+px', '--output-format=e-ctags']
 let s:vim_tags = expand('~/.cache/tags')
 let g:gutentags_cache_dir = s:vim_tags
 if !isdirectory(s:vim_tags)
@@ -194,8 +171,7 @@ nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
 " GoTo code navigation
 nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
+au BufReadPost *.c,*.h,*.cpp,*.hpp nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
 " Symbol renaming
@@ -213,27 +189,6 @@ let g:Lf_RgConfig = [
         \ "--iglob '!*.map'",
         \ ]
 
-"Colorscheme
-Plug 'morhetz/gruvbox'
-autocmd vimenter * ++nested colorscheme gruvbox
-set termguicolors
-
-" lightline
-Plug 'itchyny/lightline.vim'
-let g:lightline = {
-      \ 'colorscheme': 'materia',
-      \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ], [ 'readonly', 'filename', 'fugitive', 'modified' ] ] },
-		  \ 'component_function': {
-		  \   'fugitive': 'LightlineFugitive' }
-      \ }
-function! LightlineFugitive()
-	if exists('*FugitiveHead')
-		return FugitiveHead()
-	endif
-		return ''
-endfunction
-
 Plug 'github/copilot.vim'
 Plug 'tpope/vim-fugitive'
 
@@ -241,15 +196,54 @@ call plug#end()
 "end of vim-plug
 
 " custom functions
+" Custom statusline
+let g:currentmode={
+       \ 'n'  : 'NORMAL ',
+       \ 'v'  : 'VISUAL ',
+       \ 'V'  : 'V·Line ',
+       \ "\<C-V>" : 'V·Block ',
+       \ 'i'  : 'INSERT ',
+       \ 'R'  : 'R ',
+       \ 'Rv' : 'V·Replace ',
+       \ 'c'  : 'Command ',
+       \ 't'  : 'TERMINAL'
+       \}
+
+set statusline=
+set statusline+=%1*
+set statusline+=\ %{toupper(g:currentmode[mode()])}
+set statusline+=%2*
+set statusline+=\ %F
+set statusline+=%{&modified?'\ [+]':''}
+set statusline+=%{&readonly?'\ []':''}
+" Truncate line here
+set statusline+=%<
+
+" Separation point between left and right aligned items.
+set statusline+=%=
+
+" Encoding & Fileformat
+set statusline+=[%{&fileencoding}]
+
+set statusline+=%2*
+set statusline+=%-7([%{&fileformat}]%)
+
+set statusline+=%1*
+" Location of cursor line
+set statusline+=\ line:%l/%L
+" Column number
+set statusline+=\ col:%2c
+
+" Change Statusline color based on mode
+augroup custom_highlight
+  autocmd ColorScheme,VimEnter * hi User1 term=bold ctermfg=Black ctermbg=DarkGreen
+  autocmd ColorScheme,VimEnter * hi User2 ctermfg=LightBlue ctermbg=Black
+augroup END
+
+" Run scripts
 map <F5> :call CompileRunGcc()<CR>
 func! CompileRunGcc()
     exec "w"
-    if &filetype == 'c'
-        exec "!g++ % -o %<"
-        exec "!time ./%<"
-    elseif &filetype == 'cpp'
-        exec "!g++ % -o %<"
-        exec "!time ./%<"
     elseif &filetype == 'sh'
         :!time bash %
     elseif &filetype == 'python'
