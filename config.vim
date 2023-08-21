@@ -127,6 +127,36 @@ noremap <c-c> "+y
 " Use ctrl+v to paste from system clipboard
 noremap <c-v> "+gP
 
+" Custom statusline
+let g:currentmode={'n' : 'NORMAL', 'v' : 'VISUAL', 'V' : 'V·Line', "\<C-V>" : 'V·Block', 'i' : 'INSERT', 'r' : 'PROMPT', 'R' : 'REPLACE', 'c' : 'Command', 's' : 'SELECT', 't' : 'TERMINAL'}
+
+set statusline=
+set statusline+=%1*\ %{toupper(g:currentmode[mode()].'\ ')}
+set statusline+=%2*\ %t%{&modified?'\ [+]':''}%{&readonly?'\ ]':''}
+
+" Truncate line here
+set statusline+=%<%=
+
+" Encoding & Fileformat
+let b_show_encoding=&fileencoding=='utf-8'||&fileencoding==''
+set statusline+=%2*%{b_show_encoding?'':'['.&fileencoding.']'}%{&fileformat=='unix'?'':'['.&fileformat.']'}
+
+" Location of cursor line and column
+set statusline+=%1*\ ~line:%l/%L\ col:%2c
+
+" Change Statusline color based on mode
+function! SetHighlight(m)
+  if a:m=='i' || a:m=='R'
+    hi User1 term=bold ctermfg=Black ctermbg=LightBlue
+  elseif a:m=='v' || a:m=='V' || a:m=='\<C-V>' || a:m=='s'
+    hi User1 term=bold ctermfg=Black ctermbg=DarkYellow
+  else
+    hi User1 term=bold ctermfg=Black ctermbg=DarkGreen
+  endif
+endfunction
+
+au ColorScheme,VimEnter,ModeChanged * call SetHighlight(mode())
+au ColorScheme,VimEnter * hi User2 ctermfg=LightBlue ctermbg=Black
 "end of vim configs
 
 "vim-plug
@@ -135,23 +165,19 @@ call plug#begin()
 "nerdtree
 Plug 'scrooloose/nerdtree'
 map <C-n> :NERDTreeToggle<CR>
-autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') &&
+au BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') &&
       \ b:NERDTree.isTabTree() | quit | endif
 
 "vim-commentary
 Plug 'tpope/vim-commentary'
-autocmd FileType python set commentstring=#\ %s
-autocmd FileType java,c,cpp,json set commentstring=//\ %s
-autocmd FileType sh,shell set commentstring=\"\ %s
+au FileType python set commentstring=#\ %s
+au FileType java,c,cpp,json set commentstring=//\ %s
+au FileType sh,shell set commentstring=\"\ %s
 
 "gutentags
 Plug 'ludovicchabant/vim-gutentags'
-let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q', '--c++-kinds=+px', '--c-kinds=+px', '--output-format=e-ctags']
-let s:vim_tags = expand('~/.cache/tags')
-let g:gutentags_cache_dir = s:vim_tags
-if !isdirectory(s:vim_tags)
-   silent! call mkdir(s:vim_tags, 'p')
-endif
+let g:gutentags_cache_dir = expand('~/.cache/tags')
+if !isdirectory(g:gutentags_cache_dir) | silent! call mkdir(g:gutentags_cache_dir, 'p') | endif
 
 " coc.nvim
 Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-json coc-pyright'}
@@ -196,50 +222,6 @@ call plug#end()
 "end of vim-plug
 
 " custom functions
-" Custom statusline
-let g:currentmode={
-       \ 'n'  : 'NORMAL ',
-       \ 'v'  : 'VISUAL ',
-       \ 'V'  : 'V·Line ',
-       \ "\<C-V>" : 'V·Block ',
-       \ 'i'  : 'INSERT ',
-       \ 'R'  : 'R ',
-       \ 'Rv' : 'V·Replace ',
-       \ 'c'  : 'Command ',
-       \ 't'  : 'TERMINAL'
-       \}
-
-set statusline=
-set statusline+=%1*
-set statusline+=\ %{toupper(g:currentmode[mode()])}
-set statusline+=%2*
-set statusline+=\ %F
-set statusline+=%{&modified?'\ [+]':''}
-set statusline+=%{&readonly?'\ []':''}
-" Truncate line here
-set statusline+=%<
-
-" Separation point between left and right aligned items.
-set statusline+=%=
-
-" Encoding & Fileformat
-set statusline+=[%{&fileencoding}]
-
-set statusline+=%2*
-set statusline+=%-7([%{&fileformat}]%)
-
-set statusline+=%1*
-" Location of cursor line
-set statusline+=\ line:%l/%L
-" Column number
-set statusline+=\ col:%2c
-
-" Change Statusline color based on mode
-augroup custom_highlight
-  autocmd ColorScheme,VimEnter * hi User1 term=bold ctermfg=Black ctermbg=DarkGreen
-  autocmd ColorScheme,VimEnter * hi User2 ctermfg=LightBlue ctermbg=Black
-augroup END
-
 " Run scripts
 map <F5> :call CompileRunGcc()<CR>
 func! CompileRunGcc()
