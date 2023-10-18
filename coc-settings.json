@@ -6,6 +6,6 @@
     "python.analysis.typeCheckingMode": "off",
     "python.linting.pylintArgs": [
         "--generated-members=numpy.*,torch.*,cv2.*",
-        "--disable=C0103,C0114,C0116"
+        "--disable=C0103,C0114,C0115,C0116"
     ]
 }

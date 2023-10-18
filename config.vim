@@ -75,9 +75,6 @@ syntax enable
 set termguicolors
 colorscheme retrobox
 
-"Enable mouse
-set mouse=nvi
-
 " Set utf8 as standard encoding and en_US as the standard language
 set encoding=utf8
 
@@ -128,7 +125,7 @@ noremap <c-c> "+y
 noremap <c-v> "+gP
 
 " Custom statusline
-let g:currentmode={'n' : 'NORMAL', 'v' : 'VISUAL', 'V' : 'V·Line', "\<C-V>" : 'V·Block', 'i' : 'INSERT', 'r' : 'PROMPT', 'R' : 'REPLACE', 'c' : 'Command', 's' : 'SELECT', 't' : 'TERMINAL'}
+let g:currentmode={'n' : 'NORMAL', 'v' : 'VISUAL', 'V' : 'V·Line', "\<C-V>" : 'V·Block', 'i' : 'INSERT', 'r' : 'PROMPT', 'R' : 'REPLACE', 'c' : 'COMMAND', 's' : 'SELECT', 't' : 'TERMINAL'}
 
 set statusline=
 set statusline+=%1*\ %{toupper(g:currentmode[mode()].'\ ')}
@@ -156,7 +153,7 @@ function! SetHighlight(m)
 endfunction
 
 au ColorScheme,VimEnter,ModeChanged * call SetHighlight(mode())
-au ColorScheme,VimEnter * hi User2 ctermfg=LightBlue ctermbg=Black
+hi User2 ctermfg=LightBlue ctermbg=Black
 "end of vim configs
 
 "vim-plug
@@ -220,24 +217,3 @@ Plug 'tpope/vim-fugitive'
 
 call plug#end()
 "end of vim-plug
-
-" custom functions
-" Run scripts
-map <F5> :call CompileRunGcc()<CR>
-func! CompileRunGcc()
-    exec "w"
-    elseif &filetype == 'sh'
-        :!time bash %
-    elseif &filetype == 'python'
-        exec "!time python %"
-    endif
-endfunc
-
-map <F6> :call DebugRunGcc()<CR>
-func! DebugRunGcc()
-    exec "w"
-    if &filetype == 'python'
-        exec "!time python -m ipdb %"
-    endif
-endfunc
-" end of custom functions
