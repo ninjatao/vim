@@ -171,11 +171,6 @@ au FileType python set commentstring=#\ %s
 au FileType java,c,cpp,json set commentstring=//\ %s
 au FileType sh,shell set commentstring=\"\ %s
 
-"gutentags
-Plug 'ludovicchabant/vim-gutentags'
-let g:gutentags_cache_dir = expand('~/.cache/tags')
-if !isdirectory(g:gutentags_cache_dir) | silent! call mkdir(g:gutentags_cache_dir, 'p') | endif
-
 " coc.nvim
 Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-json coc-pyright'}
 
