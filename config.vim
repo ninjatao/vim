@@ -35,6 +35,8 @@ endif
 " Map S-Up to scrol half screen up, S-Down to scroll half screen down
 nmap <S-Up> <C-U>
 nmap <S-Down> <C-D>
+nmap <S-LEFT> 20<LEFT>
+nmap <S-RIGHT> 20<RIGHT>
 
 "Always show current position
 set ruler
@@ -172,7 +174,7 @@ au FileType java,c,cpp,json set commentstring=//\ %s
 au FileType sh,shell set commentstring=\"\ %s
 
 " coc.nvim
-Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-json coc-pyright'}
+Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-pyright coc-markdownlint coc-vimlsp'}
 
 set updatetime=300
 set signcolumn=yes
@@ -182,26 +184,36 @@ set signcolumn=yes
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
                               \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
-" Use `[g` and `]g` to navigate diagnostics
-" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
-" GoTo code navigation
-nmap <silent> gd <Plug>(coc-definition)
-au BufReadPost *.c,*.h,*.cpp,*.hpp nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-
+function! SetCoCKeymap()
+  " Use `[g` and `]g` to navigate diagnostics
+  " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list
+  nmap <silent> [g <Plug>(coc-diagnostic-prev)
+  nmap <silent> ]g <Plug>(coc-diagnostic-next)
+  " GoTo code navigation
+  nmap <silent> gd <Plug>(coc-definition)
+  nmap <silent> gy <Plug>(coc-type-definition)
+  nmap <silent> gi <Plug>(coc-implementation)
+  nmap <silent> gr <Plug>(coc-references)
 " Symbol renaming
-nmap <leader>rn <Plug>(coc-rename)
+  nmap gn <Plug>(coc-rename)
+endfunction
+au BufReadPost *.c,*.h,*.cpp,*.hpp,*.py,*.vim,*.vimrc,*.md call SetCoCKeymap()
 
 "LeaderF
 Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
+function! RegexSearchWordUnderCursor()
+    let l:word = expand("<cword>")
+    if l:word != ""
+        execute "Leaderf rg -e " . l:word
+    else
+        execute "Leaderf rg"
+    endif
+endfunction
 let g:Lf_RootMarkers = ['.git', '.svn', '.root']
 let g:Lf_WorkingDirectoryMode = 'Ac'
 let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
 let g:Lf_PreviewResult = {'Function': 0, 'rg': 0 }
-noremap <Leader>r :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR><CR>
+noremap <Leader>r :call RegexSearchWordUnderCursor()<CR>
 let g:Lf_RgConfig = [
         \ "--iglob '!site-packages'",
         \ "--iglob '!*.map'",
