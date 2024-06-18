@@ -221,6 +221,7 @@ let g:Lf_RgConfig = [
 
 Plug 'github/copilot.vim'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-surround'
 
 call plug#end()
 "end of vim-plug
