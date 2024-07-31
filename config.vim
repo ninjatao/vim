@@ -201,19 +201,14 @@ au BufReadPost *.c,*.h,*.cpp,*.hpp,*.py,*.vim,*.vimrc,*.md call SetCoCKeymap()
 
 "LeaderF
 Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
-function! RegexSearchWordUnderCursor()
-    let l:word = expand("<cword>")
-    if l:word != ""
-        execute "Leaderf rg -e " . l:word
-    else
-        execute "Leaderf rg"
-    endif
-endfunction
 let g:Lf_RootMarkers = ['.git', '.svn', '.root']
 let g:Lf_WorkingDirectoryMode = 'Ac'
 let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
 let g:Lf_PreviewResult = {'Function': 0, 'rg': 0 }
-noremap <Leader>r :call RegexSearchWordUnderCursor()<CR>
+let g:Lf_DefaultExternalTool='rg'
+noremap <Leader>r :<C-U>Leaderf rg<CR>
+nnoremap <Leader>w :<C-U><C-R>=printf("Leaderf! rg %s", expand("<cword>"))<CR><CR>
+vnoremap <Leader>w <Plug>LeaderfRgVisualLiteralNoBoundary<CR>
 let g:Lf_RgConfig = [
         \ "--iglob '!site-packages'",
         \ "--iglob '!*.map'",
@@ -222,6 +217,4 @@ let g:Lf_RgConfig = [
 Plug 'github/copilot.vim'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
-
 call plug#end()
-"end of vim-plug
