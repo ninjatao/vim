@@ -1,7 +1,8 @@
 {
     "python.pythonPath": "/usr/local/Caskroom/miniforge/base/envs/python310/bin/python",
     "pyright.inlayHints.variableTypes": false,
-    "pyright.inlayHints.functionReturnTypes": false,
+    "pyright.inlayHints.functionReturnTypes": true,
+    "pyright.inlayHints.parameterTypes": true,
     "python.linting.pylintEnabled": true,
     "python.analysis.typeCheckingMode": "off",
     "python.linting.pylintArgs": [

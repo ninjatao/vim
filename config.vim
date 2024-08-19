@@ -9,7 +9,6 @@ filetype indent on
 
 set autoread
 set autochdir
-
 " With a map leader it's possible to do extra key combinations
 " like <leader>w saves the current file
 let mapleader = "\\"
@@ -75,7 +74,6 @@ syntax enable
 
 " Set ColorScheme
 set termguicolors
-colorscheme retrobox
 
 " Set utf8 as standard encoding and en_US as the standard language
 set encoding=utf8
@@ -154,6 +152,7 @@ function! SetHighlight(m)
   endif
 endfunction
 
+" ModeChanged requires vim 8.2+
 au ColorScheme,VimEnter,ModeChanged * call SetHighlight(mode())
 hi User2 ctermfg=LightBlue ctermbg=Black
 "end of vim configs
@@ -217,4 +216,9 @@ let g:Lf_RgConfig = [
 Plug 'github/copilot.vim'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
+Plug 'morhetz/gruvbox'
 call plug#end()
+
+" set colorscheme after plugins loaded, because gruvbox is plugin
+colorscheme gruvbox
+set bg=dark
