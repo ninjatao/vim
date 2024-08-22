@@ -37,6 +37,9 @@ nmap <S-Down> <C-D>
 nmap <S-LEFT> 20<LEFT>
 nmap <S-RIGHT> 20<RIGHT>
 
+" lazydraw
+set lazyredraw
+
 "Always show current position
 set ruler
 
@@ -82,7 +85,7 @@ set encoding=utf8
 set ffs=unix,dos,mac
 
 " backup files
-set writebackup
+set nobackup
 
 " Use spaces instead of tabs
 set expandtab
@@ -94,14 +97,14 @@ set smarttab
 set shiftwidth=4
 set tabstop=4
 
-" Linebreak on 500 characters
+" Linebreak
 set lbr
-set tw=500
+set tw=120
 
 set ai "Auto indent
 set si "Smart indent
 set wrap "Wrap lines
-set timeoutlen=600 "Quicker ESC
+set timeoutlen=200 "Quicker ESC
 
 " Disable highlight when <leader><cr> is pressed
 map <silent> <leader><CR> :noh<CR>
@@ -174,7 +177,7 @@ au FileType sh,shell set commentstring=\"\ %s
 
 " coc.nvim
 Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-pyright coc-markdownlint coc-vimlsp'}
-
+let g:coc_npm_registry = 'https://registry.npm.taobao.org'
 set updatetime=300
 set signcolumn=yes
 
@@ -193,7 +196,7 @@ function! SetCoCKeymap()
   nmap <silent> gy <Plug>(coc-type-definition)
   nmap <silent> gi <Plug>(coc-implementation)
   nmap <silent> gr <Plug>(coc-references)
-" Symbol renaming
+  " Symbol renaming
   nmap gn <Plug>(coc-rename)
 endfunction
 au BufReadPost *.c,*.h,*.cpp,*.hpp,*.py,*.vim,*.vimrc,*.md call SetCoCKeymap()
