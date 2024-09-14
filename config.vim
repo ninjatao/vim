@@ -1,4 +1,4 @@
-"vim configs
+"Vim configs
 
 " Sets how many lines of history VIM has to remember
 set history=500
@@ -7,11 +7,14 @@ set history=500
 filetype plugin on
 filetype indent on
 
-set autoread
-set autochdir
+set autoread autochdir
+
 " With a map leader it's possible to do extra key combinations
 " like <leader>w saves the current file
 let mapleader = "\\"
+
+" wild menu
+set wildmenu wildmode=longest:full,full wildoptions=pum
 
 " :W sudo saves the file
 " (useful for handling the permission-denied error)
@@ -51,20 +54,16 @@ set hid
 
 " Configure backspace so it acts as it should act
 set backspace=eol,start,indent
-set whichwrap+=<,>,[,]
+set whichwrap+=<,>
 
 " Searching
-set ignorecase
-set smartcase
-set hlsearch
-set incsearch
+set ignorecase smartcase hlsearch incsearch
 
 " For regular expressions turn magic on
 set magic
 
 " Show matching brackets when text indicator is over them
-set showmatch
-set mat=2
+set showmatch mat=2
 
 " Add a bit extra margin to the left
 set foldcolumn=0
@@ -85,26 +84,21 @@ set encoding=utf8
 set ffs=unix,dos,mac
 
 " backup files
-set nobackup
-
-" Use spaces instead of tabs
-set expandtab
-
-" Be smart when using tabs ;)
-set smarttab
+set writebackup nobackup
 
 " 1 tab == 4 spaces
-set shiftwidth=4
-set tabstop=4
+set shiftwidth=4 tabstop=4 expandtab smarttab
 
 " Linebreak
 set lbr
 set tw=120
 
-set ai "Auto indent
-set si "Smart indent
-set wrap "Wrap lines
-set timeoutlen=200 "Quicker ESC
+set ai si wrap "Auto indent, smart indent, wrap
+set timeoutlen=400 "Quicker ESC
+set ttimeoutlen=400 "Quicker ESC
+
+" Set nrformats for <C-a> and <C-x> to work with decimal numbers
+set nrformats=
 
 " Disable highlight when <leader><cr> is pressed
 map <silent> <leader><CR> :noh<CR>
@@ -123,41 +117,27 @@ au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g
 set laststatus=2
 
 " Use ctrl+c to copy selection into system clipboard
-noremap <c-c> "+y
+noremap <C-c> "+y
 " Use ctrl+v to paste from system clipboard
-noremap <c-v> "+gP
+noremap <C-v> "+gP
 
 " Custom statusline
 let g:currentmode={'n' : 'NORMAL', 'v' : 'VISUAL', 'V' : 'V·Line', "\<C-V>" : 'V·Block', 'i' : 'INSERT', 'r' : 'PROMPT', 'R' : 'REPLACE', 'c' : 'COMMAND', 's' : 'SELECT', 't' : 'TERMINAL'}
 
 set statusline=
 set statusline+=%1*\ %{toupper(g:currentmode[mode()].'\ ')}
-set statusline+=%2*\ %t%{&modified?'\ [+]':''}%{&readonly?'\ ]':''}
+set statusline+=%2*\ %t%{&modified?'\ [+]':''}%{&readonly?'\ [x]':''}
 
 " Truncate line here
 set statusline+=%<%=
 
 " Encoding & Fileformat
-let b_show_encoding=&fileencoding=='utf-8'||&fileencoding==''
-set statusline+=%2*%{b_show_encoding?'':'['.&fileencoding.']'}%{&fileformat=='unix'?'':'['.&fileformat.']'}
+let b_ignore_encoding=&fileencoding=='utf-8'||&fileencoding==''
+set statusline+=%2*%{b_ignore_encoding?'':'['.&fileencoding.']'}%{&fileformat=='unix'?'':'['.&fileformat.']'}
 
 " Location of cursor line and column
-set statusline+=%1*\ ~line:%l/%L\ col:%2c
+set statusline+=%1*\ %l/%L:%2c
 
-" Change Statusline color based on mode
-function! SetHighlight(m)
-  if a:m=='i' || a:m=='R'
-    hi User1 term=bold ctermfg=Black ctermbg=LightBlue
-  elseif a:m=='v' || a:m=='V' || a:m=='\<C-V>' || a:m=='s'
-    hi User1 term=bold ctermfg=Black ctermbg=DarkYellow
-  else
-    hi User1 term=bold ctermfg=Black ctermbg=DarkGreen
-  endif
-endfunction
-
-" ModeChanged requires vim 8.2+
-au ColorScheme,VimEnter,ModeChanged * call SetHighlight(mode())
-hi User2 ctermfg=LightBlue ctermbg=Black
 "end of vim configs
 
 "vim-plug
@@ -171,24 +151,17 @@ au BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') 
 
 "vim-commentary
 Plug 'tpope/vim-commentary'
-au FileType python set commentstring=#\ %s
-au FileType java,c,cpp,json set commentstring=//\ %s
-au FileType sh,shell set commentstring=\"\ %s
 
 " coc.nvim
 Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-pyright coc-markdownlint coc-vimlsp'}
-let g:coc_npm_registry = 'https://registry.npm.taobao.org'
-set updatetime=300
+set updatetime=1000
 set signcolumn=yes
 
-" Make <CR> to accept selected completion item or notify coc.nvim to format
-" <C-g>u breaks current undo, please make your own choice
-inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+" Make <CR> to accept selected completion item or notify coc.nvim to format. <c-g>u changes undo behavior.
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm(): "\<c-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 function! SetCoCKeymap()
   " Use `[g` and `]g` to navigate diagnostics
-  " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list
   nmap <silent> [g <Plug>(coc-diagnostic-prev)
   nmap <silent> ]g <Plug>(coc-diagnostic-next)
   " GoTo code navigation
@@ -199,18 +172,14 @@ function! SetCoCKeymap()
   " Symbol renaming
   nmap gn <Plug>(coc-rename)
 endfunction
-au BufReadPost *.c,*.h,*.cpp,*.hpp,*.py,*.vim,*.vimrc,*.md call SetCoCKeymap()
+au BufReadPost *.c,*.h,*.cpp,*.hpp,*.py,*.vim,*.vimrc,*.md,*.go call SetCoCKeymap()
 
 "LeaderF
 Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
-let g:Lf_RootMarkers = ['.git', '.svn', '.root']
-let g:Lf_WorkingDirectoryMode = 'Ac'
 let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
-let g:Lf_PreviewResult = {'Function': 0, 'rg': 0 }
-let g:Lf_DefaultExternalTool='rg'
-noremap <Leader>r :<C-U>Leaderf rg<CR>
-nnoremap <Leader>w :<C-U><C-R>=printf("Leaderf! rg %s", expand("<cword>"))<CR><CR>
-vnoremap <Leader>w <Plug>LeaderfRgVisualLiteralNoBoundary<CR>
+noremap <leader>r <Plug>LeaderfRgPrompt
+noremap <leader>w <Plug>LeaderfRgBangCwordRegexNoBoundary<CR>
+vnoremap <leader>w <Plug>LeaderfRgBangVisualLiteralNoBoundary<CR>
 let g:Lf_RgConfig = [
         \ "--iglob '!site-packages'",
         \ "--iglob '!*.map'",
@@ -220,8 +189,31 @@ Plug 'github/copilot.vim'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'morhetz/gruvbox'
+let g:gruvbox_contrast_light = 'soft'
 call plug#end()
 
 " set colorscheme after plugins loaded, because gruvbox is plugin
 colorscheme gruvbox
-set bg=dark
+function! SetBackgroundColor()
+    let hour = strftime("%H")
+    if hour >= 7 && hour < 19
+        set bg=light
+    else
+        set bg=dark
+    endif
+endfunction
+autocmd VimEnter * call SetBackgroundColor()
+
+" Change Statusline color based on mode
+function! SetHighlight(m)
+  if a:m=='i' || a:m=='R'
+    hi User1 term=bold ctermfg=Black ctermbg=LightBlue
+  elseif a:m=='v' || a:m=='V' || a:m=='\<C-V>' || a:m=='s'
+    hi User1 term=bold ctermfg=Black ctermbg=DarkYellow
+  else
+    hi User1 term=bold ctermfg=Black ctermbg=DarkGreen
+  endif
+endfunction
+
+" ModeChanged requires vim 8.2+
+autocmd ColorScheme,VimEnter,ModeChanged * call SetHighlight(mode())

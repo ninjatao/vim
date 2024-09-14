@@ -10,7 +10,8 @@ pip install pylint
 # rg/ripgrep for Leaderf
 if [ "$(uname)" == "Darwin" ]; then
     echo "installing dependencies on Mac..."
-    brew install cmake go nodejs rg
+    brew install cmake go nodejs # coc.nvim
+    brew install rg # Leaderf
 elif [ "$(uname)" == "Linux" ]; then
     echo "installing dependencies on Linux..."
     apt-get install cmake go nodejs ripgrep
