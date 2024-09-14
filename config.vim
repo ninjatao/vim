@@ -92,6 +92,7 @@ set shiftwidth=4 tabstop=4 expandtab smarttab
 " Linebreak
 set lbr
 set tw=120
+set bg=dark
 
 set ai si wrap "Auto indent, smart indent, wrap
 set timeoutlen=400 "Quicker ESC
@@ -137,7 +138,6 @@ set statusline+=%2*%{b_ignore_encoding?'':'['.&fileencoding.']'}%{&fileformat=='
 
 " Location of cursor line and column
 set statusline+=%1*\ %l/%L:%2c
-
 "end of vim configs
 
 "vim-plug
@@ -180,40 +180,52 @@ let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
 noremap <leader>r <Plug>LeaderfRgPrompt
 noremap <leader>w <Plug>LeaderfRgBangCwordRegexNoBoundary<CR>
 vnoremap <leader>w <Plug>LeaderfRgBangVisualLiteralNoBoundary<CR>
-let g:Lf_RgConfig = [
-        \ "--iglob '!site-packages'",
-        \ "--iglob '!*.map'",
-        \ ]
+let g:Lf_RgConfig = ["--iglob '!site-packages'", "--iglob '!*.map'"]
 
-Plug 'github/copilot.vim'
+if has('nvim')
+    Plug 'zbirenbaum/copilot.lua'
+    Plug 'nvim-lua/plenary.nvim'
+    Plug 'CopilotC-Nvim/CopilotChat.nvim', {'branch': 'canary'}
+else
+    Plug 'github/copilot.vim'
+end
+
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'morhetz/gruvbox'
-let g:gruvbox_contrast_light = 'soft'
 call plug#end()
+
+if has('nvim')
+lua << EOF
+local copilot = require("copilot.suggestion")
+function _G.accept_or_tab()
+    if copilot.is_visible() then
+        copilot.accept()
+        return ""
+    else
+        return "\t"
+    end
+end
+require("copilot").setup {suggestion = {auto_trigger = true}}
+require("CopilotChat").setup {}
+EOF
+    inoremap <silent><expr> <Tab> v:lua.accept_or_tab()
+endif
 
 " set colorscheme after plugins loaded, because gruvbox is plugin
 colorscheme gruvbox
-function! SetBackgroundColor()
-    let hour = strftime("%H")
-    if hour >= 7 && hour < 19
-        set bg=light
-    else
-        set bg=dark
-    endif
-endfunction
-autocmd VimEnter * call SetBackgroundColor()
 
 " Change Statusline color based on mode
 function! SetHighlight(m)
   if a:m=='i' || a:m=='R'
-    hi User1 term=bold ctermfg=Black ctermbg=LightBlue
+    highlight User1 term=bold ctermfg=Black ctermbg=LightBlue guifg=Black guibg=LightBlue
   elseif a:m=='v' || a:m=='V' || a:m=='\<C-V>' || a:m=='s'
-    hi User1 term=bold ctermfg=Black ctermbg=DarkYellow
+    highlight User1 term=bold ctermfg=Black ctermbg=Yellow guifg=Black guibg=Yellow
   else
-    hi User1 term=bold ctermfg=Black ctermbg=DarkGreen
+    highlight User1 term=bold ctermfg=Black ctermbg=Green guifg=Black guibg=Green
   endif
 endfunction
+
 
 " ModeChanged requires vim 8.2+
 autocmd ColorScheme,VimEnter,ModeChanged * call SetHighlight(mode())
