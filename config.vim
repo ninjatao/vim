@@ -112,7 +112,7 @@ catch
 endtry
 
 " Return to last edit position when opening files (You want this!)
-au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+autocmd BufReadPost * if &ft !~# 'commit' && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
 " Always show the status line
 set laststatus=2
@@ -132,9 +132,9 @@ set statusline+=%2*\ %t%{&modified?'\ [+]':''}%{&readonly?'\ [x]':''}
 " Truncate line here
 set statusline+=%<%=
 
-" Encoding & Fileformat
-let b_ignore_encoding=&fileencoding=='utf-8'||&fileencoding==''
-set statusline+=%2*%{b_ignore_encoding?'':'['.&fileencoding.']'}%{&fileformat=='unix'?'':'['.&fileformat.']'}
+" Encoding & file format
+let show_encoding = &fileencoding != 'utf-8' && !empty(&fileencoding)
+set statusline+=%2*%{show_encoding?'['.&fileencoding.']':''}%{&fileformat!='unix'?'['.&fileformat.']':''}
 
 " Location of cursor line and column
 set statusline+=%1*\ %l/%L:%2c
@@ -145,9 +145,11 @@ call plug#begin()
 
 "nerdtree
 Plug 'scrooloose/nerdtree'
-map <C-n> :NERDTreeToggle<CR>
-au BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') &&
-      \ b:NERDTree.isTabTree() | quit | endif
+nnoremap <C-n> :NERDTreeToggle<CR>
+augroup NERDTree
+    autocmd!
+    autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+augroup END
 
 "vim-commentary
 Plug 'tpope/vim-commentary'
@@ -199,15 +201,21 @@ if has('nvim')
 lua << EOF
 local copilot = require("copilot.suggestion")
 function _G.accept_or_tab()
-    if copilot.is_visible() then
+    if copilot and copilot.is_visible() then
         copilot.accept()
         return ""
-    else
-        return "\t"
     end
+    return "\t"
 end
 require("copilot").setup {suggestion = {auto_trigger = true}}
-require("CopilotChat").setup {}
+require("CopilotChat").setup {
+    window = {layout = "horizontal"},
+    prompts = {
+        Explain = {prompt = '/COPILOT_EXPLAIN 解释已被选中的代码段落。'},
+        Fix = {prompt = '/COPILOT_EXPLAIN 代码中有错误，请检查和修复。'},
+        Optimize = {prompt = '/COPILOT_EXPLAIN 优化选中的代码段落。'},
+    }
+}
 EOF
     inoremap <silent><expr> <Tab> v:lua.accept_or_tab()
 endif
@@ -215,17 +223,17 @@ endif
 " set colorscheme after plugins loaded, because gruvbox is plugin
 colorscheme gruvbox
 
-" Change Statusline color based on mode
+" change statusline color based on mode
 function! SetHighlight(m)
-  if a:m=='i' || a:m=='R'
-    highlight User1 term=bold ctermfg=Black ctermbg=LightBlue guifg=Black guibg=LightBlue
-  elseif a:m=='v' || a:m=='V' || a:m=='\<C-V>' || a:m=='s'
-    highlight User1 term=bold ctermfg=Black ctermbg=Yellow guifg=Black guibg=Yellow
+  let l:highlight_cmd = 'highlight user1 term=bold ctermfg=black guifg=black'
+  if a:m =~# '^[iR]$'
+    execute l:highlight_cmd . ' ctermbg=lightblue guibg=lightblue'
+  elseif a:m =~# '^[vsV\<C-V>]$'
+    execute l:highlight_cmd . ' ctermbg=yellow guibg=yellow'
   else
-    highlight User1 term=bold ctermfg=Black ctermbg=Green guifg=Black guibg=Green
+    execute l:highlight_cmd . ' ctermbg=green guibg=green'
   endif
 endfunction
 
-
-" ModeChanged requires vim 8.2+
-autocmd ColorScheme,VimEnter,ModeChanged * call SetHighlight(mode())
+" modechanged requires Vim 8.2+ or Neovim
+autocmd colorscheme,vimenter,modechanged * call SetHighlight(mode())
