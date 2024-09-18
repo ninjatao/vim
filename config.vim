@@ -159,6 +159,9 @@ Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-pyright c
 set updatetime=1000
 set signcolumn=yes
 
+" setting for coc.nvim
+let g:coc_config_home = expand('~/.vim')
+
 " Make <CR> to accept selected completion item or notify coc.nvim to format. <c-g>u changes undo behavior.
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm(): "\<c-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 

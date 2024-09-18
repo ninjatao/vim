@@ -12,9 +12,10 @@ if [ "$(uname)" == "Darwin" ]; then
     echo "installing dependencies on Mac..."
     brew install cmake go nodejs # coc.nvim
     brew install rg # Leaderf
+    brew install llvm # for clangd
 elif [ "$(uname)" == "Linux" ]; then
     echo "installing dependencies on Linux..."
-    apt-get install cmake go nodejs ripgrep
+    apt-get install cmake go nodejs ripgrep llvm
 fi
 
 workpath=$(cd `dirname $0`; pwd)
