@@ -140,10 +140,9 @@ nnoremap <C-n> :NERDTreeToggle<CR>
 autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
 
 " coc.nvim
-Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-pyright coc-markdownlint coc-vimlsp'}
+Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-pyright coc-vimlsp'}
 set updatetime=1000
 set signcolumn=yes
-let g:coc_config_home = expand('~/.vim')
 
 " Make <CR> to accept selected completion item
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm(): "\<c-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
