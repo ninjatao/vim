@@ -10,12 +10,11 @@ pip install pylint
 # rg/ripgrep for Leaderf
 if [ "$(uname)" == "Darwin" ]; then
     echo "installing dependencies on Mac..."
-    brew install cmake go nodejs # coc.nvim
+    brew install cmake nodejs # coc.nvim
     brew install rg # Leaderf
-    brew install llvm # for clangd
 elif [ "$(uname)" == "Linux" ]; then
     echo "installing dependencies on Linux..."
-    apt-get install cmake go nodejs ripgrep llvm
+    apt-get install cmake nodejs ripgrep
 fi
 
 workpath=$(cd `dirname $0`; pwd)
@@ -25,3 +24,5 @@ workscript="set runtimepath+=$workpath"
 echo $workscript > ~/.vimrc
 setting="source $workpath/config.vim"
 echo $setting >> ~/.vimrc
+mkdir -p ~/.config/nvim
+cp ~/.vimrc ~/.config/nvim/init.vim

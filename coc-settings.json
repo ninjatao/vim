@@ -1,5 +1,4 @@
 {
-    "clangd.path": "/usr/local/opt/llvm/bin/clangd",
     "pyright.inlayHints.functionReturnTypes": true,
     "pyright.inlayHints.parameterTypes": false,
     "pyright.inlayHints.variableTypes": false,

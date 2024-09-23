@@ -1,4 +1,4 @@
-"Vim configs
+" Vim configs
 
 " Sets how many lines of history VIM has to remember
 set history=500
@@ -10,7 +10,6 @@ filetype indent on
 set autoread autochdir
 
 " With a map leader it's possible to do extra key combinations
-" like <leader>w saves the current file
 let mapleader = "\\"
 
 " wild menu
@@ -94,7 +93,9 @@ set lbr
 set tw=120
 set bg=dark
 
-set ai si wrap "Auto indent, smart indent, wrap
+"Auto indent, smart indent, wrap
+set ai si wrap
+
 set timeoutlen=400 "Quicker ESC
 set ttimeoutlen=400 "Quicker ESC
 
@@ -122,47 +123,29 @@ noremap <C-c> "+y
 " Use ctrl+v to paste from system clipboard
 noremap <C-v> "+gP
 
-" Custom statusline
+" Simplest statusline
 let g:currentmode={'n' : 'NORMAL', 'v' : 'VISUAL', 'V' : 'V·Line', "\<C-V>" : 'V·Block', 'i' : 'INSERT', 'r' : 'PROMPT', 'R' : 'REPLACE', 'c' : 'COMMAND', 's' : 'SELECT', 't' : 'TERMINAL'}
 
-set statusline=
-set statusline+=%1*\ %{toupper(g:currentmode[mode()].'\ ')}
+set statusline=%1*\ %{toupper(g:currentmode[mode()].'\ ')}
 set statusline+=%2*\ %t%{&modified?'\ [+]':''}%{&readonly?'\ [x]':''}
-
-" Truncate line here
 set statusline+=%<%=
-
-" Encoding & file format
-let show_encoding = &fileencoding != 'utf-8' && !empty(&fileencoding)
-set statusline+=%2*%{show_encoding?'['.&fileencoding.']':''}%{&fileformat!='unix'?'['.&fileformat.']':''}
-
-" Location of cursor line and column
+set statusline+=%2*%{(&fileencoding!='utf-8'&&!empty(&fileencoding))?'['.&fileencoding.']':''}%{&fileformat!='unix'?'['.&fileformat.']':''}
 set statusline+=%1*\ %l/%L:%2c
-"end of vim configs
+" end of vim configs
 
-"vim-plug
+" vim-plug
 call plug#begin()
-
-"nerdtree
 Plug 'scrooloose/nerdtree'
 nnoremap <C-n> :NERDTreeToggle<CR>
-augroup NERDTree
-    autocmd!
-    autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
-augroup END
-
-"vim-commentary
-Plug 'tpope/vim-commentary'
+autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
 
 " coc.nvim
 Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-pyright coc-markdownlint coc-vimlsp'}
 set updatetime=1000
 set signcolumn=yes
-
-" setting for coc.nvim
 let g:coc_config_home = expand('~/.vim')
 
-" Make <CR> to accept selected completion item or notify coc.nvim to format. <c-g>u changes undo behavior.
+" Make <CR> to accept selected completion item
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm(): "\<c-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 function! SetCoCKeymap()
@@ -177,9 +160,9 @@ function! SetCoCKeymap()
   " Symbol renaming
   nmap gn <Plug>(coc-rename)
 endfunction
-au BufReadPost *.c,*.h,*.cpp,*.hpp,*.py,*.vim,*.vimrc,*.md,*.go call SetCoCKeymap()
+autocmd BufReadPost *.c,*.h,*.cpp,*.hpp,*.py,*.vim,*.vimrc,*.md,*.go call SetCoCKeymap()
 
-"LeaderF
+" LeaderF
 Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
 let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
 noremap <leader>r <Plug>LeaderfRgPrompt
@@ -187,6 +170,7 @@ noremap <leader>w <Plug>LeaderfRgBangCwordRegexNoBoundary<CR>
 vnoremap <leader>w <Plug>LeaderfRgBangVisualLiteralNoBoundary<CR>
 let g:Lf_RgConfig = ["--iglob '!site-packages'", "--iglob '!*.map'"]
 
+" Copilot and CopilotChat
 if has('nvim')
     Plug 'zbirenbaum/copilot.lua'
     Plug 'nvim-lua/plenary.nvim'
@@ -195,39 +179,17 @@ else
     Plug 'github/copilot.vim'
 end
 
+Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'morhetz/gruvbox'
 call plug#end()
 
-if has('nvim')
-lua << EOF
-local copilot = require("copilot.suggestion")
-function _G.accept_or_tab()
-    if copilot and copilot.is_visible() then
-        copilot.accept()
-        return ""
-    end
-    return "\t"
-end
-require("copilot").setup {suggestion = {auto_trigger = true}}
-require("CopilotChat").setup {
-    window = {layout = "horizontal"},
-    prompts = {
-        Explain = {prompt = '/COPILOT_EXPLAIN 解释已被选中的代码段落。'},
-        Fix = {prompt = '/COPILOT_EXPLAIN 代码中有错误，请检查和修复。'},
-        Optimize = {prompt = '/COPILOT_EXPLAIN 优化选中的代码段落。'},
-    }
-}
-EOF
-    inoremap <silent><expr> <Tab> v:lua.accept_or_tab()
-endif
-
-" set colorscheme after plugins loaded, because gruvbox is plugin
+" Set colorscheme after plugins loaded, because gruvbox is plugin
 colorscheme gruvbox
 
-" change statusline color based on mode
-function! SetHighlight(m)
+" Change statusline color based on mode
+function! SetStatuslineHighlight(m)
   let l:highlight_cmd = 'highlight user1 term=bold ctermfg=black guifg=black'
   if a:m =~# '^[iR]$'
     execute l:highlight_cmd . ' ctermbg=lightblue guibg=lightblue'
@@ -239,4 +201,21 @@ function! SetHighlight(m)
 endfunction
 
 " modechanged requires Vim 8.2+ or Neovim
-autocmd colorscheme,vimenter,modechanged * call SetHighlight(mode())
+autocmd colorscheme,vimenter,modechanged * call SetStatuslineHighlight(mode())
+
+if has('nvim')
+lua << EOF
+    require("copilot").setup {suggestion = {auto_trigger = true}}
+    require("CopilotChat").setup {
+        window = {layout = "horizontal"},
+        prompts = {
+            Explain = {prompt = '/COPILOT_EXPLAIN 解释已被选中的代码段落。'},
+            Fix = {prompt = '/COPILOT_EXPLAIN 代码中有错误，请检查和修复。'},
+            Optimize = {prompt = '/COPILOT_EXPLAIN 优化选中的代码段落。'},
+        }
+    }
+EOF
+
+    "Use <Tab> to accept completion if visible
+    inoremap <silent><expr> <Tab> luaeval('require("copilot.suggestion").is_visible() and (require("copilot.suggestion").accept() or "") or "\t"')
+endif
