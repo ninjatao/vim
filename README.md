@@ -2,15 +2,32 @@
 
 Vim/Neovim setting and customization for personal use.
 
+## Tested Platforms
+
+- Mac
+- Ubuntu
+- Termux
+
 ## Plugin manager
 
 [vim-plug](http://github.com/junegunn/vim-plug)
 
 ## How to use
 
-1. `git clone <repo-url>` clone this repo
+### Dependencies
+
+- Python3 pip
+- curl
+- homebrew(Mac)
+
+### Install
+
+``` shell
+curl -sSL https://raw.githubusercontent.com/ninjatao/vim/main/install_remote.sh | bash
+```
+
+### In Case Failed
+
+1. `git clone https://github.com/ninjatao/vim.git` clone this repo
 1. rename this dir if needed, and `cd` into the dir
 1. run `./install.sh`. sudo password is needed on Linux
-1. start Vim or Neovim, ignore warngings
-1. run `:PlugInstall` in install plugins
-1. Restart Vim on Neovim and you are set to go

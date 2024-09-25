@@ -1,11 +1,20 @@
 " Vim configs
 
-" Sets how many lines of history VIM has to remember
-set history=500
+if exists('g:loaded_global_setting')
+    finish
+else
+    let g:loaded_global_setting = 1
+endif
 
-" Enable filetype plugins
+" Enable filetype detection
+if &compatible
+    set nocompatible
+endif
 filetype plugin on
 filetype indent on
+
+" Sets how many lines of history VIM has to remember
+set history=999
 
 set autoread autochdir
 
@@ -21,6 +30,7 @@ command W w !sudo tee % > /dev/null
 
 " Set cursor always in the middle of screen.
 set scrolloff=999
+set display+=lastline
 
 " Avoid garbled characters in Chinese language windows OS
 let $LANG='en'
@@ -96,8 +106,8 @@ set bg=dark
 "Auto indent, smart indent, wrap
 set ai si wrap
 
-set timeoutlen=400 "Quicker ESC
-set ttimeoutlen=400 "Quicker ESC
+set ttimeout
+set ttimeoutlen=200
 
 " Set nrformats for <C-a> and <C-x> to work with decimal numbers
 set nrformats=
@@ -107,8 +117,8 @@ map <silent> <leader><CR> :noh<CR>
 
 " Specify the behavior when switching between buffers
 try
-  set switchbuf=useopen,usetab,newtab
-  set stal=2
+    set switchbuf=useopen,usetab,newtab
+    set stal=2
 catch
 endtry
 
@@ -137,9 +147,7 @@ set statusline+=%1*\ %l/%L:%2c
 call plug#begin()
 Plug 'preservim/nerdtree'
 nnoremap <C-n> :NERDTreeToggle<CR>
-" Start NERDTree when Vim is started without file arguments.
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists('s:std_in') | NERDTree | endif
+autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
 
 " coc.nvim
 Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-pyright coc-vimlsp'}
@@ -150,26 +158,28 @@ set signcolumn=yes
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm(): "\<c-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 function! SetCoCKeymap()
-  " Use `[g` and `]g` to navigate diagnostics
-  nmap <silent> [g <Plug>(coc-diagnostic-prev)
-  nmap <silent> ]g <Plug>(coc-diagnostic-next)
-  " GoTo code navigation
-  nmap <silent> gd <Plug>(coc-definition)
-  nmap <silent> gy <Plug>(coc-type-definition)
-  nmap <silent> gi <Plug>(coc-implementation)
-  nmap <silent> gr <Plug>(coc-references)
-  " Symbol renaming
-  nmap gn <Plug>(coc-rename)
+    " Use `[g` and `]g` to navigate diagnostics
+    nmap <silent> [g <Plug>(coc-diagnostic-prev)
+    nmap <silent> ]g <Plug>(coc-diagnostic-next)
+    " GoTo code navigation
+    nmap <silent> gd <Plug>(coc-definition)
+    nmap <silent> gy <Plug>(coc-type-definition)
+    nmap <silent> gi <Plug>(coc-implementation)
+    nmap <silent> gr <Plug>(coc-references)
+    " Symbol renaming
+    nmap gn <Plug>(coc-rename)
 endfunction
 autocmd BufReadPost *.c,*.h,*.cpp,*.hpp,*.py,*.vim,*.vimrc,*.md,*.go call SetCoCKeymap()
 
 " LeaderF
-Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
-let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
-noremap <leader>r <Plug>LeaderfRgPrompt
-noremap <leader>w <Plug>LeaderfRgBangCwordRegexNoBoundary<CR>
-vnoremap <leader>w <Plug>LeaderfRgBangVisualLiteralNoBoundary<CR>
-let g:Lf_RgConfig = ["--iglob '!site-packages'", "--iglob '!*.map'"]
+if has('python3') " needs python3
+    Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
+    let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
+    noremap <leader>r <Plug>LeaderfRgPrompt
+    noremap <leader>w <Plug>LeaderfRgBangCwordRegexNoBoundary<CR>
+    vnoremap <leader>w <Plug>LeaderfRgBangVisualLiteralNoBoundary<CR>
+    let g:Lf_RgConfig = ["--iglob '!site-packages'", "--iglob '!*.map'"]
+endif
 
 " Copilot and CopilotChat
 if has('nvim')
@@ -187,22 +197,31 @@ Plug 'morhetz/gruvbox'
 call plug#end()
 
 " Set colorscheme after plugins loaded, because gruvbox is plugin
-colorscheme gruvbox
+try
+    colorscheme gruvbox
+catch
+endtry
 
 " Change statusline color based on mode
 function! SetStatuslineHighlight(m)
-  let l:highlight_cmd = 'highlight user1 term=bold ctermfg=black guifg=black'
-  if a:m =~# '^[iR]$'
-    execute l:highlight_cmd . ' ctermbg=lightblue guibg=lightblue'
-  elseif a:m =~# '^[vsV\<C-V>]$'
-    execute l:highlight_cmd . ' ctermbg=yellow guibg=yellow'
-  else
-    execute l:highlight_cmd . ' ctermbg=green guibg=green'
-  endif
+    let l:highlight_cmd = 'highlight user1 term=bold ctermfg=black guifg=black'
+    if a:m =~# '^[iR]$'
+        execute l:highlight_cmd . ' ctermbg=lightblue guibg=lightblue'
+    elseif a:m =~# '^[vsV\<C-V>]$'
+        execute l:highlight_cmd . ' ctermbg=yellow guibg=yellow'
+    else
+        execute l:highlight_cmd . ' ctermbg=green guibg=green'
+    endif
 endfunction
 
 " modechanged requires Vim 8.2+ or Neovim
-autocmd colorscheme,vimenter,modechanged * call SetStatuslineHighlight(mode())
+autocmd colorscheme,VimEnter * call SetStatuslineHighlight(mode())
+if has('nvim') || (has('vim') && v:version >= 802)
+    autocmd modechanged * call SetStatuslineHighlight(mode())
+else
+    " Sometimes git commit uses vi, which seems not having VimEnter
+    call SetStatuslineHighlight(mode())
+endif
 
 if has('nvim')
 lua << EOF
@@ -214,9 +233,10 @@ lua << EOF
             Fix = {prompt = '/COPILOT_EXPLAIN 代码中有错误，请检查和修复。'},
             Optimize = {prompt = '/COPILOT_EXPLAIN 优化选中的代码段落。'},
         }
-    }
+        }
 EOF
+    autocmd BufEnter * if winnr('$') == 1 && &filetype == 'copilot-chat' | quit | endif
 
-    "Use <Tab> to accept completion if visible
-    inoremap <silent><expr> <Tab> luaeval('require("copilot.suggestion").is_visible() and (require("copilot.suggestion").accept() or "") or "\t"')
+"Use <Tab> to accept completion if visible
+inoremap <silent><expr> <Tab> luaeval('require("copilot.suggestion").is_visible() and (require("copilot.suggestion").accept() or "") or "\t"')
 endif
