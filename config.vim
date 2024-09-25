@@ -135,13 +135,15 @@ set statusline+=%1*\ %l/%L:%2c
 
 " vim-plug
 call plug#begin()
-Plug 'scrooloose/nerdtree'
+Plug 'preservim/nerdtree'
 nnoremap <C-n> :NERDTreeToggle<CR>
-autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+" Start NERDTree when Vim is started without file arguments.
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists('s:std_in') | NERDTree | endif
 
 " coc.nvim
 Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-pyright coc-vimlsp'}
-set updatetime=1000
+set updatetime=300
 set signcolumn=yes
 
 " Make <CR> to accept selected completion item
