@@ -43,27 +43,15 @@ else
     set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
 endif
 
-" Map S-Up to scrol half screen up, S-Down to scroll half screen down
-nmap <S-Up> <C-U>
-nmap <S-Down> <C-D>
-nmap <S-LEFT> 20<LEFT>
-nmap <S-RIGHT> 20<RIGHT>
-
 " lazydraw
 set lazyredraw
 
 "Always show current position
 set ruler
 
-" Height of the command bar
-set cmdheight=2
-
-" A buffer becomes hidden when it is abandoned
-set hid
-
 " Configure backspace so it acts as it should act
 set backspace=eol,start,indent
-set whichwrap+=<,>
+set whichwrap+=<,>,[,]
 
 " Searching
 set ignorecase smartcase hlsearch incsearch
@@ -99,12 +87,12 @@ set writebackup nobackup
 set shiftwidth=4 tabstop=4 expandtab smarttab
 
 " Linebreak
-set lbr
-set tw=120
-set bg=dark
+set linebreak textwidth=120
+
+set background=dark
 
 "Auto indent, smart indent, wrap
-set ai si wrap
+set autoindent smartindent wrap
 
 set ttimeout
 set ttimeoutlen=200
@@ -113,12 +101,12 @@ set ttimeoutlen=200
 set nrformats=
 
 " Disable highlight when <leader><cr> is pressed
-map <silent> <leader><CR> :noh<CR>
+noremap <silent> <leader><CR> :noh<CR>
 
 " Specify the behavior when switching between buffers
 try
     set switchbuf=useopen,usetab,newtab
-    set stal=2
+    set showtabline=2
 catch
 endtry
 
@@ -141,10 +129,15 @@ set statusline+=%2*\ %t%{&modified?'\ [+]':''}%{&readonly?'\ [x]':''}
 set statusline+=%<%=
 set statusline+=%2*%{(&fileencoding!='utf-8'&&!empty(&fileencoding))?'['.&fileencoding.']':''}%{&fileformat!='unix'?'['.&fileformat.']':''}
 set statusline+=%1*\ %l/%L:%2c
+
+" Remove trailing whitespaces and empty lines
+autocmd BufWritePre * if &filetype != 'diff' | %s/\s\+$//e | %s/\n\+\%$//e | endif
 " end of vim configs
 
 " vim-plug
 call plug#begin()
+
+" NERDTree
 Plug 'preservim/nerdtree'
 nnoremap <C-n> :NERDTreeToggle<CR>
 autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
@@ -153,21 +146,19 @@ autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTr
 Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-pyright coc-vimlsp'}
 set updatetime=300
 set signcolumn=yes
-
 " Make <CR> to accept selected completion item
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm(): "\<c-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
 function! SetCoCKeymap()
     " Use `[g` and `]g` to navigate diagnostics
-    nmap <silent> [g <Plug>(coc-diagnostic-prev)
-    nmap <silent> ]g <Plug>(coc-diagnostic-next)
+    nnoremap <silent> [g <Plug>(coc-diagnostic-prev)
+    nnoremap <silent> ]g <Plug>(coc-diagnostic-next)
     " GoTo code navigation
-    nmap <silent> gd <Plug>(coc-definition)
-    nmap <silent> gy <Plug>(coc-type-definition)
-    nmap <silent> gi <Plug>(coc-implementation)
-    nmap <silent> gr <Plug>(coc-references)
+    nnoremap <silent> gd <Plug>(coc-definition)
+    nnoremap <silent> gy <Plug>(coc-type-definition)
+    nnoremap <silent> gi <Plug>(coc-implementation)
+    nnoremap <silent> gr <Plug>(coc-references)
     " Symbol renaming
-    nmap gn <Plug>(coc-rename)
+    nnoremap gn <Plug>(coc-rename)
 endfunction
 autocmd BufReadPost *.c,*.h,*.cpp,*.hpp,*.py,*.vim,*.vimrc,*.md,*.go call SetCoCKeymap()
 
@@ -200,6 +191,7 @@ call plug#end()
 try
     colorscheme gruvbox
 catch
+    colorscheme retrobox
 endtry
 
 " Change statusline color based on mode
@@ -216,13 +208,11 @@ endfunction
 
 " modechanged requires Vim 8.2+ or Neovim
 autocmd colorscheme,VimEnter * call SetStatuslineHighlight(mode())
-if has('nvim') || (has('vim') && v:version >= 802)
+if has('nvim') || v:version >= 802
     autocmd modechanged * call SetStatuslineHighlight(mode())
-else
-    " Sometimes git commit uses vi, which seems not having VimEnter
-    call SetStatuslineHighlight(mode())
 endif
 
+" Copilot and CopilotChat lua setup
 if has('nvim')
 lua << EOF
     require("copilot").setup {suggestion = {auto_trigger = true}}
@@ -233,9 +223,8 @@ lua << EOF
             Fix = {prompt = '/COPILOT_EXPLAIN 代码中有错误，请检查和修复。'},
             Optimize = {prompt = '/COPILOT_EXPLAIN 优化选中的代码段落。'},
         }
-        }
+    }
 EOF
-    autocmd BufEnter * if winnr('$') == 1 && &filetype == 'copilot-chat' | quit | endif
 
 "Use <Tab> to accept completion if visible
 inoremap <silent><expr> <Tab> luaeval('require("copilot.suggestion").is_visible() and (require("copilot.suggestion").accept() or "") or "\t"')
