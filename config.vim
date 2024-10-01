@@ -46,9 +46,6 @@ endif
 " lazydraw
 set lazyredraw
 
-"Always show current position
-set ruler
-
 " Configure backspace so it acts as it should act
 set backspace=eol,start,indent
 set whichwrap+=<,>,[,]
@@ -89,7 +86,12 @@ set shiftwidth=4 tabstop=4 expandtab smarttab
 " Linebreak
 set linebreak textwidth=120
 
-set background=dark
+" set background color between 6:00 and 18:00 to lightblue
+if strftime("%H") >= 6 && strftime("%H") < 18
+    set background=light
+else
+    set background=dark
+endif
 
 "Auto indent, smart indent, wrap
 set autoindent smartindent wrap
