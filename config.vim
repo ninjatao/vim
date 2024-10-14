@@ -64,13 +64,6 @@ set shiftwidth=4 tabstop=4 expandtab smarttab " 1 tab == 4 spaces
 
 set linebreak textwidth=120 " Wrap lines at 120 characters
 
-" Switch background color between 6:00 and 18:00 to lightblue
-if strftime("%H") >= 6 && strftime("%H") < 18
-    set background=light
-else
-    set background=dark
-endif
-
 set autoindent smartindent wrap
 
 set ttimeout " Enable timeout for key codes
@@ -143,6 +136,7 @@ if has('python3') " needs python3
     let g:Lf_WorkingDirectoryMode = 'Ac'
     let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
     noremap <leader>r <Plug>LeaderfRgPrompt
+    noremap <leader>rr :<C-U>Leaderf rg --stayOpen -e<Space>
     noremap <leader>w <Plug>LeaderfRgBangCwordRegexNoBoundary<CR>
     vnoremap <leader>w <Plug>LeaderfRgBangVisualLiteralNoBoundary<CR>
     let g:Lf_RgConfig = ["--iglob '!site-packages'", "--iglob '!*.map'"]
@@ -168,6 +162,7 @@ try " Set colorscheme after plugins loaded, because gruvbox is plugin
 catch
     colorscheme retrobox
 endtry
+set background=dark
 
 " Change statusline color based on mode
 function! SetStatuslineHighlight(m)
