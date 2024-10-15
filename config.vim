@@ -89,6 +89,9 @@ set laststatus=2 " Always show the status line
 noremap <C-c> "+y " Copy selection into system clipboard
 noremap <C-v> "+gP " Paste from system clipboard
 
+nnoremap <silent> [b :bprevious<CR> " Switch between buffers
+nnoremap <silent> ]b :bnext<CR>
+
 " Simplest statusline
 let g:currentmode={'n' : 'NORMAL', 'v' : 'VISUAL', 'V' : 'V·Line', "\<C-V>" : 'V·Block', 'i' : 'INSERT', 'r' : 'PROMPT', 'R' : 'REPLACE', 'c' : 'COMMAND', 's' : 'SELECT', 't' : 'TERMINAL'}
 
