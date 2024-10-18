@@ -1,41 +1,33 @@
 " Vim configs
 
 if exists('g:loaded_global_setting')
-    finish
+    finish " avoid loading twice
 else
     let g:loaded_global_setting = 1
 endif
 
-" Enable filetype detection
 if &compatible
-    set nocompatible
+    set nocompatible " Be iMproved
 endif
-filetype plugin on
+filetype plugin on " Enable file type detection
 filetype indent on
 
-" Sets how many lines of history VIM has to remember
-set history=999
+set history=999 " Remember more commands
 
-set autoread autochdir
+set autoread autochdir " Reload files changed outside vim
 
-" With a map leader it's possible to do extra key combinations
-let mapleader = "\\"
+let mapleader = "\\" " Leader Key
 
-" wild menu
-set wildmenu wildmode=longest:full,full wildoptions=pum
+set wildmenu wildmode=longest:full,full wildoptions=pum " wild menu
 
-" :W sudo saves the file
-" (useful for handling the permission-denied error)
-command W w !sudo tee % > /dev/null
+command W w !sudo tee % > /dev/null " Save file with sudo
 
-" Set cursor always in the middle of screen.
-set scrolloff=999
+set scrolloff=999 " Keep cursor in middle when scrolling
 set display+=lastline
 
-" Avoid garbled characters in Chinese language windows OS
 let $LANG='en'
 
-" Ignore compiled files
+" Ignore files
 set wildignore=*.o,*~,*.pyc,*.tag
 if has("win16") || has("win32")
     set wildignore+=.git\*,.hg\*,.svn\*
@@ -43,62 +35,41 @@ else
     set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
 endif
 
-" lazydraw
-set lazyredraw
-
-"Always show current position
-set ruler
-
 " Configure backspace so it acts as it should act
 set backspace=eol,start,indent
 set whichwrap+=<,>,[,]
 
-" Searching
-set ignorecase smartcase hlsearch incsearch
+set ignorecase smartcase hlsearch incsearch " Searching options
 
-" For regular expressions turn magic on
-set magic
+set magic " regex set to magic mode
 
 " Show matching brackets when text indicator is over them
 set showmatch mat=2
 
-" Add a bit extra margin to the left
-set foldcolumn=0
+set foldcolumn=0 " Add a bit extra margin to the left
 
-" Display line number
-set number
+set number " Display line number
 
-" Enable syntax highlighting
-syntax enable
+syntax enable " Enable syntax highlighting
 
-" Set ColorScheme
-set termguicolors
+set termguicolors " Enable 24-bit RGB color
 
-" Set utf8 as standard encoding and en_US as the standard language
 set encoding=utf8
 
-" Use Unix as the standard file type
 set ffs=unix,dos,mac
 
-" backup files
-set writebackup nobackup
+set writebackup nobackup " No backup files
 
-" 1 tab == 4 spaces
-set shiftwidth=4 tabstop=4 expandtab smarttab
+set shiftwidth=4 tabstop=4 expandtab smarttab " 1 tab == 4 spaces
 
-" Linebreak
-set linebreak textwidth=120
+set linebreak textwidth=120 " Wrap lines at 120 characters
 
-set background=dark
-
-"Auto indent, smart indent, wrap
 set autoindent smartindent wrap
 
-set ttimeout
+set ttimeout " Enable timeout for key codes
 set ttimeoutlen=200
 
-" Set nrformats for <C-a> and <C-x> to work with decimal numbers
-set nrformats=
+set nrformats= " <C-a> and <C-x> work with decimal numbers
 
 " Disable highlight when <leader><cr> is pressed
 noremap <silent> <leader><CR> :noh<CR>
@@ -110,16 +81,16 @@ try
 catch
 endtry
 
-" Return to last edit position when opening files (You want this!)
+" Return to last edit position when opening files, except in committing.
 autocmd BufReadPost * if &ft !~# 'commit' && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
-" Always show the status line
-set laststatus=2
+set laststatus=2 " Always show the status line
 
-" Use ctrl+c to copy selection into system clipboard
-noremap <C-c> "+y
-" Use ctrl+v to paste from system clipboard
-noremap <C-v> "+gP
+noremap <C-c> "+y " Copy selection into system clipboard
+noremap <C-v> "+gP " Paste from system clipboard
+
+nnoremap <silent> [b :bprevious<CR> " Switch between buffers
+nnoremap <silent> ]b :bnext<CR>
 
 " Simplest statusline
 let g:currentmode={'n' : 'NORMAL', 'v' : 'VISUAL', 'V' : 'V·Line', "\<C-V>" : 'V·Block', 'i' : 'INSERT', 'r' : 'PROMPT', 'R' : 'REPLACE', 'c' : 'COMMAND', 's' : 'SELECT', 't' : 'TERMINAL'}
@@ -165,8 +136,10 @@ autocmd BufReadPost *.c,*.h,*.cpp,*.hpp,*.py,*.vim,*.vimrc,*.md,*.go call SetCoC
 " LeaderF
 if has('python3') " needs python3
     Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
+    let g:Lf_WorkingDirectoryMode = 'Ac'
     let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
     noremap <leader>r <Plug>LeaderfRgPrompt
+    noremap <leader>rr :<C-U>Leaderf rg --stayOpen -e<Space>
     noremap <leader>w <Plug>LeaderfRgBangCwordRegexNoBoundary<CR>
     vnoremap <leader>w <Plug>LeaderfRgBangVisualLiteralNoBoundary<CR>
     let g:Lf_RgConfig = ["--iglob '!site-packages'", "--iglob '!*.map'"]
@@ -187,12 +160,12 @@ Plug 'tpope/vim-surround'
 Plug 'morhetz/gruvbox'
 call plug#end()
 
-" Set colorscheme after plugins loaded, because gruvbox is plugin
-try
+try " Set colorscheme after plugins loaded, because gruvbox is plugin
     colorscheme gruvbox
 catch
     colorscheme retrobox
 endtry
+set background=dark
 
 " Change statusline color based on mode
 function! SetStatuslineHighlight(m)
@@ -215,16 +188,25 @@ endif
 " Copilot and CopilotChat lua setup
 if has('nvim')
 lua << EOF
-    require("copilot").setup {suggestion = {auto_trigger = true}}
-    require("CopilotChat").setup {
-        window = {layout = "horizontal"},
-        prompts = {
-            Explain = {prompt = '/COPILOT_EXPLAIN 解释已被选中的代码段落。'},
-            Fix = {prompt = '/COPILOT_EXPLAIN 代码中有错误，请检查和修复。'},
-            Optimize = {prompt = '/COPILOT_EXPLAIN 优化选中的代码段落。'},
-        }
+    local prompts = {
+        Explain = {prompt = '/COPILOT_EXPLAIN 解释已被选中的代码段落。'},
+        Fix = {prompt = '/COPILOT_EXPLAIN 代码中有错误，请检查和修复。'},
+        Optimize = {prompt = '/COPILOT_EXPLAIN 优化选中的代码段落。'},
     }
+    require("copilot").setup {suggestion = {auto_trigger = true}}
+    if vim.fn.has('termux') == 1 then
+        require("CopilotChat").setup {
+            window = {layout = "horizontal"},
+            prompts = prompts
+        }
+    else
+        require("CopilotChat").setup {
+            prompts = prompts
+        }
+    end
 EOF
+
+nnoremap <silent> <leader>c :CopilotChatToggle<CR> " CopilotChat window
 
 "Use <Tab> to accept completion if visible
 inoremap <silent><expr> <Tab> luaeval('require("copilot.suggestion").is_visible() and (require("copilot.suggestion").accept() or "") or "\t"')
