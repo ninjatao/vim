@@ -95,11 +95,15 @@ nnoremap <silent> ]b :bnext<CR>
 " Simplest statusline
 let g:currentmode={'n' : 'NORMAL', 'v' : 'VISUAL', 'V' : 'V·Line', "\<C-V>" : 'V·Block', 'i' : 'INSERT', 'r' : 'PROMPT', 'R' : 'REPLACE', 'c' : 'COMMAND', 's' : 'SELECT', 't' : 'TERMINAL'}
 
-set statusline=%1*\ %{toupper(g:currentmode[mode()].'\ ')}
-set statusline+=%2*\ %t%{&modified?'\ [+]':''}%{&readonly?'\ [x]':''}
-set statusline+=%<%=
-set statusline+=%2*%{(&fileencoding!='utf-8'&&!empty(&fileencoding))?'['.&fileencoding.']':''}%{&fileformat!='unix'?'['.&fileformat.']':''}
-set statusline+=%1*\ %l/%L:%2c
+function! MyStatusLine()
+  return '%1*' . ' '. toupper(g:currentmode[mode()] . ' ') .
+              \ '%2* %t' . (&modified ? ' [+]' : '') . (&readonly ? ' [x]' : '') . '%<%=' .
+              \ '%2*' . ((&fileencoding != 'utf-8' && !empty(&fileencoding)) ? '[' . &fileencoding . ']' : '') . ((&fileformat != 'unix') ? '[' . &fileformat . ']' : '') .
+              \ '%1* %l/%L:%2c'
+endfunction
+
+autocmd WinEnter,BufEnter * setlocal statusline=%!MyStatusLine()
+autocmd WinLeave * setlocal statusline=
 
 " Remove trailing whitespaces and empty lines
 autocmd BufWritePre * if &filetype != 'diff' | %s/\s\+$//e | %s/\n\+\%$//e | endif
@@ -167,7 +171,7 @@ catch
 endtry
 set background=dark
 
-" Change statusline color based on mode
+" Change statusline color based on mode, after colorscheme is set.
 function! SetStatuslineHighlight(m)
     let l:highlight_cmd = 'highlight user1 term=bold ctermfg=black guifg=black'
     if a:m =~# '^[iR]$'
