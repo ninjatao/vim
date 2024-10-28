@@ -24,8 +24,7 @@ command W w !sudo tee % > /dev/null " Save file with sudo
 
 set scrolloff=999 " Keep cursor in middle when scrolling
 set display+=lastline
-
-let $LANG='en'
+let $LANG='en_US.UTF-8' " Fix bizzare \"+y not working problem
 
 " Ignore files
 set wildignore=*.o,*~,*.pyc,*.tag
