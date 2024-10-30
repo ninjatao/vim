@@ -1,5 +1,7 @@
 # Vim setting
 
+## What is this?
+
 Vim/Neovim setting and customization for personal use.
 
 ## Tested Platforms
@@ -8,26 +10,17 @@ Vim/Neovim setting and customization for personal use.
 - Ubuntu
 - Termux
 
+## Prerequisite
+
+- Python3/pip3
+- node.js >= 18
+
 ## Plugin manager
 
 [vim-plug](http://github.com/junegunn/vim-plug)
 
 ## How to use
 
-### Dependencies
-
-- Python3 pip
-- curl
-- homebrew(Mac)
-
-### Install
-
-``` shell
-curl -sSL https://raw.githubusercontent.com/ninjatao/vim/main/install_remote.sh | bash
-```
-
-### In Case Failed
-
-1. `git clone https://github.com/ninjatao/vim.git` clone this repo
-1. rename this dir if needed, and `cd` into the dir
-1. run `./install.sh`. sudo password is needed on Linux
+1. Install vim or Neovim
+1. Setup python3 support: `pip3 install vim` or `pip3 install nvim`
+1. run `curl -sSL https://raw.githubusercontent.com/ninjatao/vim/main/install_remote.sh | bash`

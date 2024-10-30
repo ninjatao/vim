@@ -70,6 +70,9 @@ set ttimeoutlen=200
 
 set nrformats= " <C-a> and <C-x> work with decimal numbers
 
+set list
+set listchars=tab:▸\ ,trail:·
+
 " Disable highlight when <leader><cr> is pressed
 noremap <silent> <leader><CR> :noh<CR>
 
