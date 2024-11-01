@@ -12,7 +12,8 @@ Vim/Neovim setting and customization for personal use.
 
 ## Prerequisite
 
-- Python3/pip3
+- Vim >= 9.0 or Neovim >= 0.9
+- Python3 & pip3
 - node.js >= 18
 
 ## Plugin manager

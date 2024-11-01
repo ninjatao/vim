@@ -169,7 +169,7 @@ call plug#end()
 try " Set colorscheme after plugins loaded, because gruvbox is plugin
     colorscheme gruvbox
 catch
-    colorscheme retrobox
+    colorscheme default
 endtry
 set background=dark
 
@@ -185,11 +185,7 @@ function! SetStatuslineHighlight(m)
     endif
 endfunction
 
-" modechanged requires Vim 8.2+ or Neovim
-autocmd colorscheme,VimEnter * call SetStatuslineHighlight(mode())
-if has('nvim') || v:version >= 802
-    autocmd modechanged * call SetStatuslineHighlight(mode())
-endif
+autocmd colorscheme,VimEnter,modechanged * call SetStatuslineHighlight(mode())
 
 " Copilot and CopilotChat lua setup
 if has('nvim')
