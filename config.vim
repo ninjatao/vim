@@ -6,9 +6,7 @@ else
     let g:loaded_global_setting = 1
 endif
 
-if &compatible
-    set nocompatible " Be iMproved
-endif
+set nocompatible
 filetype plugin on " Enable file type detection
 filetype indent on
 
@@ -27,11 +25,11 @@ set display+=lastline
 let $LANG='en_US.UTF-8' " Fix bizzare \"+y not working problem
 
 " Ignore files
-set wildignore=*.o,*~,*.pyc,*.tag
-if has("win16") || has("win32")
-    set wildignore+=.git\*,.hg\*,.svn\*
+set wildignore=*.o,*~,*.pyc,*.tag,.DS_Store
+if has("win32")
+    set wildignore+=.git*,.hg*,.svn*
 else
-    set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
+    set wildignore+=*/.git/*,*/.hg/*,*/.svn/*
 endif
 
 " Configure backspace so it acts as it should act
@@ -125,23 +123,21 @@ set updatetime=300
 set signcolumn=yes
 " Make <CR> to accept selected completion item
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm(): "\<c-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-function! SetCoCKeymap()
-    " Use `[g` and `]g` to navigate diagnostics
-    nnoremap <silent> [g <Plug>(coc-diagnostic-prev)
-    nnoremap <silent> ]g <Plug>(coc-diagnostic-next)
-    " GoTo code navigation
-    nnoremap <silent> gd <Plug>(coc-definition)
-    nnoremap <silent> gy <Plug>(coc-type-definition)
-    nnoremap <silent> gi <Plug>(coc-implementation)
-    nnoremap <silent> gr <Plug>(coc-references)
-    " Symbol renaming
-    nnoremap gn <Plug>(coc-rename)
-endfunction
-autocmd BufReadPost *.c,*.h,*.cpp,*.hpp,*.py,*.vim,*.vimrc,*.md,*.go call SetCoCKeymap()
+
+" Use `[g` and `]g` to navigate diagnostics
+nnoremap <silent> [g <Plug>(coc-diagnostic-prev)
+nnoremap <silent> ]g <Plug>(coc-diagnostic-next)
+" GoTo code navigation
+nnoremap <silent> gd <Plug>(coc-definition)
+nnoremap <silent> gy <Plug>(coc-type-definition)
+nnoremap <silent> gi <Plug>(coc-implementation)
+nnoremap <silent> gr <Plug>(coc-references)
+" Symbol renaming
+nnoremap gn <Plug>(coc-rename)
 
 " LeaderF
 if has('python3') " needs python3
-    Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
+    Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension', 'on': ['Leaderf', 'LeaderfRgPrompt', 'LeaderfRgBangCwordRegexNoBoundary', 'LeaderfRgBangVisualLiteralNoBoundary'] }
     let g:Lf_WorkingDirectoryMode = 'Ac'
     let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
     noremap <leader>r <Plug>LeaderfRgPrompt
@@ -152,16 +148,14 @@ if has('python3') " needs python3
 endif
 
 " Copilot and CopilotChat
+Plug 'github/copilot.vim'
 if has('nvim')
-    Plug 'zbirenbaum/copilot.lua'
     Plug 'nvim-lua/plenary.nvim'
     Plug 'CopilotC-Nvim/CopilotChat.nvim', {'branch': 'canary'}
-else
-    Plug 'github/copilot.vim'
 end
 
-Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-commentary', { 'on': 'Commentary' }
+Plug 'tpope/vim-fugitive', { 'on': 'G' }
 Plug 'tpope/vim-surround'
 Plug 'morhetz/gruvbox'
 call plug#end()
@@ -169,7 +163,7 @@ call plug#end()
 try " Set colorscheme after plugins loaded, because gruvbox is plugin
     colorscheme gruvbox
 catch
-    colorscheme retrobox
+    colorscheme default
 endtry
 set background=dark
 
@@ -185,21 +179,16 @@ function! SetStatuslineHighlight(m)
     endif
 endfunction
 
-" modechanged requires Vim 8.2+ or Neovim
-autocmd colorscheme,VimEnter * call SetStatuslineHighlight(mode())
-if has('nvim') || v:version >= 802
-    autocmd modechanged * call SetStatuslineHighlight(mode())
-endif
+autocmd colorscheme,VimEnter,modechanged * call SetStatuslineHighlight(mode())
 
-" Copilot and CopilotChat lua setup
+" CopilotChat lua setup
 if has('nvim')
 lua << EOF
     local prompts = {
-        Explain = {prompt = '/COPILOT_EXPLAIN 解释已被选中的代码段落。'},
-        Fix = {prompt = '/COPILOT_EXPLAIN 代码中有错误，请检查和修复。'},
-        Optimize = {prompt = '/COPILOT_EXPLAIN 优化选中的代码段落。'},
+        Explain = {prompt = '/COPILOT_EXPLAIN 解释已被选中的代码。'},
+        Fix = {prompt = '/COPILOT_EXPLAIN 请检查和修复代码中的错误。'},
+        Optimize = {prompt = '/COPILOT_EXPLAIN 优化选中的代码。'},
     }
-    require("copilot").setup {suggestion = {auto_trigger = true}}
     if vim.fn.has('termux') == 1 then
         require("CopilotChat").setup {
             window = {layout = "horizontal"},
@@ -213,7 +202,4 @@ lua << EOF
 EOF
 
 nnoremap <silent> <leader>c :CopilotChatToggle<CR> " CopilotChat window
-
-"Use <Tab> to accept completion if visible
-inoremap <silent><expr> <Tab> luaeval('require("copilot.suggestion").is_visible() and (require("copilot.suggestion").accept() or "") or "\t"')
 endif
