@@ -85,10 +85,6 @@ autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTr
 
 Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-pyright coc-vimlsp'}
 set updatetime=300 signcolumn=yes
-" Make <CR> to accept selected completion item, if plugin coc.nvim exists
-if exists('*coc#pum#visible')
-    inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm(): "\<c-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-endif
 " Use `[g` and `]g` to navigate diagnostics
 nnoremap <silent> [g <Plug>(coc-diagnostic-prev)
 nnoremap <silent> ]g <Plug>(coc-diagnostic-next)
@@ -125,6 +121,12 @@ Plug 'tpope/vim-surround'
 Plug 'morhetz/gruvbox'
 call plug#end()
 
+" Make <CR> to accept selected completion item, if plugin coc.nvim exists
+autocmd VimEnter * if exists(':CocCommand') |
+            \ inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm(): "\<c-g>u\<CR>\<c-r>=coc#on_enter()\<CR>" |
+            \ endif
+
+" Load colorscheme
 try
     colorscheme gruvbox
 catch
@@ -143,7 +145,6 @@ function! SetStatuslineHighlight(m)
         execute l:highlight_cmd . ' ctermbg=green guibg=green'
     endif
 endfunction
-
 autocmd colorscheme,VimEnter,modechanged * call SetStatuslineHighlight(mode())
 
 " CopilotChat lua setup
@@ -167,6 +168,4 @@ lua << EOF
         }
     end
 EOF
-
-nnoremap <silent> <leader>c :CopilotChatToggle<CR> " CopilotChat window
 endif
