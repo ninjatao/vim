@@ -101,7 +101,7 @@ if has('python3') " needs python3
     let g:Lf_WorkingDirectoryMode = 'Ac'
     let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
     noremap <leader>r <Plug>LeaderfRgPrompt
-    noremap <leader>rr :<C-U>Leaderf rg --stayOpen -e<Space>
+    noremap <leader>rr :<C-U>Leaderf! rg --stayOpen -e<Space>
     noremap <leader>w <Plug>LeaderfRgBangCwordRegexNoBoundary<CR>
     vnoremap <leader>w <Plug>LeaderfRgBangVisualLiteralNoBoundary<CR>
     let g:Lf_RgConfig = ["--iglob '!site-packages'", "--iglob '!*.map'"]
@@ -110,7 +110,7 @@ endif
 Plug 'github/copilot.vim'
 if has('nvim')
     Plug 'nvim-lua/plenary.nvim'
-    Plug 'CopilotC-Nvim/CopilotChat.nvim', {'branch': 'canary'}
+    Plug 'CopilotC-Nvim/CopilotChat.nvim', {'branch': 'main'}
 end
 
 if !has('nvim') " nvim has built-in gc and gcc
