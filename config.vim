@@ -6,17 +6,25 @@ else
     let g:loaded_global_setting = 1
 endif
 
+" === 基础设置分组 ===
 set nocompatible
-filetype plugin on " Enable file type detection
+filetype plugin on
 filetype indent on
 
-set history=999 " Remember more commands
-set autoread autochdir " Reload files changed outside vim
-let mapleader = "\\" " Leader Key
-set wildmenu wildmode=longest:full,full wildoptions=pum " wild menu
-command W w !sudo tee % > /dev/null " Save file with sudo
-set scrolloff=999 " Keep cursor in middle when scrolling
-set display+=lastline
+" === 编辑器行为设置 ===
+set history=999                " 命令历史记录数
+set autoread autochdir        " 自动重新加载文件和改变工作目录
+let mapleader = " "          " 设置leader键为空格
+set wildmenu
+set wildmode=longest:full,full
+set wildoptions=pum          " 命令行补全设置
+
+" === 显示设置 ===
+set scrolloff=999            " 保持光标在屏幕中间
+set display+=lastline        " 显示最后一行
+set number                   " 显示行号
+set termguicolors           " 启用24位真彩色
+syntax enable               " 启用语法高亮
 let $LANG='en_US.UTF-8' " Fix bizarre \"+y not working problem
 
 " Ignore files
@@ -58,15 +66,28 @@ endtry
 " Return to last edit position when opening files, except in committing.
 autocmd BufReadPost * if &ft !~# 'commit' && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 set laststatus=2 " Always show the status line
+
+" mapping Ctrl+c
 noremap <C-c> "+y " Copy selection into system clipboard
 noremap <C-v> "+gP " Paste from system clipboard
 
-" Statusline
-let g:currentmode={'n' : 'NORMAL', 'v' : 'VISUAL', 'V' : 'V·Line', "\<C-V>" : 'V·Block', 'i' : 'INSERT', 'r' : 'PROMPT', 'R' : 'REPLACE', 'c' : 'COMMAND', 's' : 'SELECT', 't' : 'TERMINAL'}
+" === 状态栏配置 ===
+let g:currentmode={
+    \ 'n'  : 'NORMAL',
+    \ 'v'  : 'VISUAL',
+    \ 'V'  : 'V·Line',
+    \ "\<C-V>" : 'V·Block',
+    \ 'i'  : 'INSERT',
+    \ 'r'  : 'PROMPT',
+    \ 'R'  : 'REPLACE',
+    \ 'c'  : 'COMMAND',
+    \ 's'  : 'SELECT',
+    \ 't'  : 'TERMINAL'
+    \ }
 
 function! MyStatusLine()
   return '%1*' . ' '. toupper(g:currentmode[mode()] . ' ') .
-              \ '%2* %t' . (&modified ? ' [+]' : '') . (&readonly ? ' [x]' : '') . '%<%=' .
+             \ '%2* %t' . (&modified ? ' [+]' : '') . (&readonly ? ' [x]' : '') . '%<%=' .
               \ '%2*' . ((&fileencoding != 'utf-8' && !empty(&fileencoding)) ? '[' . &fileencoding . ']' : '') . ((&fileformat != 'unix') ? '[' . &fileformat . ']' : '') .
               \ '%1* %l/%L:%2c'
 endfunction
@@ -79,45 +100,82 @@ autocmd BufWritePre * if &filetype != 'diff' | %s/\s\+$//e | %s/\n\+\%$//e | end
 " Start of plugins
 call plug#begin()
 
-Plug 'preservim/nerdtree'
-nnoremap <C-n> :NERDTreeToggle<CR>
-autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
-
-Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-pyright coc-vimlsp'}
-set updatetime=300 signcolumn=yes
-" Use `[g` and `]g` to navigate diagnostics
-nnoremap <silent> [g <Plug>(coc-diagnostic-prev)
-nnoremap <silent> ]g <Plug>(coc-diagnostic-next)
-" GoTo code navigation
-nnoremap <silent> gd <Plug>(coc-definition)
-nnoremap <silent> gy <Plug>(coc-type-definition)
-nnoremap <silent> gi <Plug>(coc-implementation)
-nnoremap <silent> gr <Plug>(coc-references)
-" Symbol renaming
-nnoremap gn <Plug>(coc-rename)
-
-if has('python3') " needs python3
-    Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
-    let g:Lf_WorkingDirectoryMode = 'Ac'
-    let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
-    noremap <leader>r <Plug>LeaderfRgPrompt
-    noremap <leader>rr :<C-U>Leaderf! rg --stayOpen -e<Space>
-    noremap <leader>w <Plug>LeaderfRgBangCwordRegexNoBoundary<CR>
-    vnoremap <leader>w <Plug>LeaderfRgBangVisualLiteralNoBoundary<CR>
-    let g:Lf_RgConfig = ["--iglob '!site-packages'", "--iglob '!*.map'"]
+" 文件树插件
+if exists('g:vscode')
+    lua << EOF
+    local vscode = require('vscode')
+    vim.keymap.set('n', '<leader>n', function()
+        vscode.action('workbench.files.action.focusFilesExplorer')
+    end, { silent = true })
+EOF
+else
+    Plug 'preservim/nerdtree'
+    nnoremap <leader>n :NERDTreeToggle<CR>
+    autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
 endif
 
-Plug 'github/copilot.vim'
-if has('nvim')
-    Plug 'nvim-lua/plenary.nvim'
-    Plug 'CopilotC-Nvim/CopilotChat.nvim', {'branch': 'main'}
-end
+if exists('g:vscode')
+lua << EOF
+    local vscode = require('vscode')
+    vim.keymap.set('n', '<leader>r', function()
+        vscode.action('editor.action.goToReferences')
+    end, { silent = true })
+
+    vim.keymap.set('n', '<leader>d', function()
+        vscode.action('editor.action.revealDefinition')
+    end, { silent = true })
+EOF
+else
+    Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': ':CocInstall coc-pyright coc-vimlsp'}
+    set updatetime=300 signcolumn=yes
+    " Use `[g` and `]g` to navigate diagnostics
+    nnoremap <silent> [g <Plug>(coc-diagnostic-prev)
+    nnoremap <silent> ]g <Plug>(coc-diagnostic-next)
+    " GoTo code navigation
+    nnoremap <silent> <leader>d <Plug>(coc-definition)
+    nnoremap <silent> <leader>i <Plug>(coc-implementation)
+    nnoremap <silent> <leader>r <Plug>(coc-references)
+    " Symbol rename
+    nnoremap gn <Plug>(coc-rename)
+endif
+
+" search in files
+if exists('g:vscode')
+lua << EOF
+    local vscode = require('vscode')
+    vim.keymap.set('n', '<leader>s', function()
+        vscode.action('workbench.action.findInFiles')
+    end, { silent = true })
+    vim.keymap.set('n', '<leader>l', function()
+        vscode.action('search.action.focusSearchList')  -- 这个命令会直接聚焦到侧边栏的搜索结果
+    end, { silent = true })
+EOF
+else
+    if has('python3') " needs python3
+        Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
+        let g:Lf_WorkingDirectoryMode = 'Ac'
+        let g:Lf_CommandMap = {'<C-K>': ['<S-Up>'], '<C-J>': ['<S-Down>']}
+        noremap <leader>s :<C-U>Leaderf! rg --stayOpen -e<Space>
+        noremap <leader>w <Plug>LeaderfRgBangCwordRegexNoBoundary<CR>
+        vnoremap <leader>w <Plug>LeaderfRgBangVisualLiteralNoBoundary<CR>
+        let g:Lf_RgConfig = ["--iglob '!site-packages'", "--iglob '!*.map'"]
+    endif
+endif
+
+if !exists('g:vscode')
+    Plug 'github/copilot.vim'
+    if has('nvim')
+        Plug 'nvim-lua/plenary.nvim'
+        Plug 'CopilotC-Nvim/CopilotChat.nvim', {'branch': 'main'}
+    endif
+endif
 
 if !has('nvim') " nvim has built-in gc and gcc
     Plug 'tpope/vim-commentary', { 'on': 'Commentary' }
 end
-Plug 'tpope/vim-fugitive', { 'on': 'G' }
-Plug 'tpope/vim-surround'
+Plug 'tpope/vim-fugitive', { 'on': ['G', 'Git'] }
+Plug 'tpope/vim-surround', { 'on': [] }
+autocmd CursorHold * call plug#load('vim-surround')
 Plug 'morhetz/gruvbox'
 call plug#end()
 
@@ -148,24 +206,16 @@ endfunction
 autocmd colorscheme,VimEnter,modechanged * call SetStatuslineHighlight(mode())
 
 " CopilotChat lua setup
-if has('nvim')
+if !exists('g:vscode') && has('nvim')
 lua << EOF
     local prompts = {
         Explain = {prompt = '/COPILOT_EXPLAIN 解释已被选中的代码。'},
         Fix = {prompt = '/COPILOT_EXPLAIN 请检查和修复代码中的错误。'},
         Optimize = {prompt = '/COPILOT_EXPLAIN 优化选中的代码。'},
     }
-    if vim.fn.has('termux') == 1 then
-        require("CopilotChat").setup {
-            window = {layout = "horizontal"},
-            model = 'o1-mini',
-            prompts = prompts
-        }
-    else
-        require("CopilotChat").setup {
-            model = 'o1-mini',
-            prompts = prompts
-        }
-    end
+    require("CopilotChat").setup {
+        model = 'claude-3.7-sonnet',
+        prompts = prompts
+    }
 EOF
 endif
