@@ -10,6 +10,7 @@ endif
 set nocompatible
 filetype plugin on
 filetype indent on
+set mouse=
 
 " === 编辑器行为设置 ===
 set history=999                " 命令历史记录数
@@ -87,14 +88,30 @@ let g:currentmode={
 
 function! MyStatusLine()
   return '%1*' . ' '. toupper(g:currentmode[mode()] . ' ') .
-             \ '%2* %t' . (&modified ? ' [+]' : '') . (&readonly ? ' [x]' : '') . '%<%=' .
-              \ '%2*' . ((&fileencoding != 'utf-8' && !empty(&fileencoding)) ? '[' . &fileencoding . ']' : '') . ((&fileformat != 'unix') ? '[' . &fileformat . ']' : '') .
-              \ '%1* %l/%L:%2c'
+            \ '%2* %t' . (&modified ? ' [+]' : '') . '%<%=' .
+            \ '%2*' . ((&fileencoding != 'utf-8' && !empty(&fileencoding)) ? '[' . &fileencoding . ']' : '') . ((&fileformat != 'unix') ? '[' . &fileformat . ']' : '') .
+            \ '%1* %l/%L:%2c'
 endfunction
 autocmd WinEnter,BufEnter * setlocal statusline=%!MyStatusLine()
 autocmd WinLeave * setlocal statusline=
 
-autocmd BufWritePre * if &filetype != 'diff' | %s/\s\+$//e | %s/\n\+\%$//e | endif " Remove trailing whitespaces and empty lines
+function! s:CleanFileOnSave()
+    " 检查文件类型是否应该被排除
+    if &filetype =~# '^diff$\|^git$\|^gitcommit$\'
+        return
+    endif
+
+    " 执行清理操作
+    %s/\s\+$//e
+    %s/\n\+\%$//e
+endfunction
+
+if exists('g:vscode')
+    " VSCode specific settings
+    autocmd BufWriteCmd * call s:CleanFileOnSave()
+else
+    autocmd BufWritePre * call s:CleanFileOnSave()
+endif
 " End of configs
 
 " Start of plugins
@@ -190,7 +207,7 @@ try
 catch
     colorscheme default
 endtry
-set background=dark
+set background=light
 
 " Change statusline color based on mode, after colorscheme is set.
 function! SetStatuslineHighlight(m)
@@ -209,9 +226,9 @@ autocmd colorscheme,VimEnter,modechanged * call SetStatuslineHighlight(mode())
 if !exists('g:vscode') && has('nvim')
 lua << EOF
     local prompts = {
-        Explain = {prompt = '/COPILOT_EXPLAIN 解释已被选中的代码。'},
-        Fix = {prompt = '/COPILOT_EXPLAIN 请检查和修复代码中的错误。'},
-        Optimize = {prompt = '/COPILOT_EXPLAIN 优化选中的代码。'},
+        Explain = {prompt = '/COPILOT_EXPLAIN 解释已被选中的代码，用中文回答。'},
+        Fix = {prompt = '/COPILOT_EXPLAIN 请检查和修复代码中的错误，用中文回答。'},
+        Optimize = {prompt = '/COPILOT_EXPLAIN 优化选中的代码，用中文回答。'},
     }
     require("CopilotChat").setup {
         model = 'claude-3.7-sonnet',
