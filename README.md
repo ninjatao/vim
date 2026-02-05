@@ -12,20 +12,11 @@ Modern Neovim configuration with native LSP, Telescope, and Lua-based setup.
 
 ## Prerequisite
 
-- Neovim >= 0.9
+- Neovim >= 0.11
 - Python3 & pip3
 - node.js >= 18 (for Copilot)
 - ripgrep (for Telescope search)
 - make & gcc (for telescope-fzf-native)
-
-## Features
-
-- **Native LSP**: Built-in language server support with Mason
-- **Modern UI**: Telescope fuzzy finder, nvim-tree file explorer
-- **Smart Completion**: nvim-cmp with LSP, buffer, and path sources
-- **Syntax Highlighting**: Tree-sitter based highlighting
-- **Git Integration**: Fugitive and Gitsigns
-- **AI Assistance**: GitHub Copilot and CopilotChat
 
 ## Plugin Manager
 
@@ -41,15 +32,10 @@ curl -sSL https://raw.githubusercontent.com/ninjatao/vim/main/install_remote.sh 
 
 ### Manual Install
 
-1. Install Neovim (>= 0.9)
+1. Install Neovim (>= 0.11)
 2. Clone this repo: `git clone https://github.com/ninjatao/vim.git ~/.vim`
 3. Run install script: `cd ~/.vim && ./install.sh`
 
-The install script will:
-- Install vim-plug
-- Install system dependencies (neovim, node, ripgrep, make, gcc)
-- Create `~/.config/nvim/init.lua` that loads `~/.vim/config.lua`
-- Install all plugins
 
 ## Key Mappings
 
@@ -57,14 +43,25 @@ The install script will:
 - `<leader>n` - Toggle file tree
 - `<leader>s` - Search in files (live grep)
 - `<leader>f` - Find files
-- `<leader>w` - Search word under cursor
-- `<leader>d` - Go to definition
-- `<leader>r` - Show references
-- `<leader>i` - Go to implementation
-- `<leader>cc` - Toggle Copilot Chat
+- `<leader>b` - Find buffers (Neovim only)
+- `<leader>w` - Search word under cursor (Neovim only)
+- `<leader>cc` - Toggle Copilot Chat (Neovim only)
 - `gd` - Go to definition
+- `gD` - Go to declaration
+- `gi` - Go to implementation
 - `gr` - Show references
 - `gn` - Rename symbol
+- `K` - Hover documentation
 - `[g` / `]g` - Navigate diagnostics
 - `<C-c>` - Copy to system clipboard
 - `<C-v>` - Paste from system clipboard
+
+## VSCode/Kiro Integration
+
+This configuration works in both native Neovim and VSCode/Kiro with Neovim extension:
+
+- **Native Neovim**: Full features including LSP, completion, file tree, Telescope, Copilot
+- **VSCode/Kiro**: Minimal subset with vim-surround, Comment.nvim, vim-fugitive
+  - Telescope keybindings mapped to VSCode commands
+  - Uses VSCode's native LSP and completion
+  - Command-line window (`q:`) protection to prevent errors

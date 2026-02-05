@@ -86,7 +86,7 @@ local mode_map = {
     V = "V·LINE",
     ["\22"] = "V·BLOCK",
     i = "INSERT",
-    r = "PROMPT",
+    r = "REPLACE",
     R = "REPLACE",
     c = "COMMAND",
     s = "SELECT",
@@ -109,15 +109,19 @@ end
 
 vim.opt.statusline = "%!v:lua.custom_statusline()"
 
--- Environment
-vim.env.LANG = "en_US.UTF-8"
-
 -- Enable filetype detection
 vim.cmd("filetype plugin indent on")
 vim.cmd("syntax enable")
 
 -- Keymaps
 local keymap = vim.keymap.set
+
+-- Disable command-line window in VSCode (causes errors)
+if vim.g.vscode then
+    keymap("n", "q:", "<Nop>", { desc = "Disable command-line window" })
+    keymap("n", "q/", "<Nop>", { desc = "Disable search command-line window" })
+    keymap("n", "q?", "<Nop>", { desc = "Disable search command-line window" })
+end
 
 -- Disable highlight
 keymap("n", "<leader><CR>", ":noh<CR>", { silent = true, desc = "Clear search highlight" })
@@ -174,42 +178,40 @@ end
 local Plug = vim.fn["plug#"]
 vim.call("plug#begin")
 
--- File explorer
-Plug("nvim-tree/nvim-web-devicons") -- Icons for nvim-tree
-Plug("nvim-tree/nvim-tree.lua")
+-- Skip most plugins in VSCode
+if not vim.g.vscode then
+    -- File explorer
+    Plug("nvim-tree/nvim-web-devicons")
+    Plug("nvim-tree/nvim-tree.lua")
 
--- Fuzzy finder
-Plug("nvim-lua/plenary.nvim") -- Required by telescope
-Plug("nvim-telescope/telescope.nvim", { branch = "0.1.x" })
-Plug("nvim-telescope/telescope-fzf-native.nvim", { ["do"] = "make" })
+    -- Fuzzy finder
+    Plug("nvim-lua/plenary.nvim")
+    Plug("nvim-telescope/telescope.nvim")
+    Plug("nvim-telescope/telescope-fzf-native.nvim", { ["do"] = "make" })
 
--- LSP and completion (using Neovim 0.11+ native LSP)
-Plug("williamboman/mason.nvim")
-Plug("williamboman/mason-lspconfig.nvim")
-Plug("hrsh7th/nvim-cmp")
-Plug("hrsh7th/cmp-nvim-lsp")
-Plug("hrsh7th/cmp-buffer")
-Plug("hrsh7th/cmp-path")
-Plug("L3MON4D3/LuaSnip")
-Plug("saadparwaiz1/cmp_luasnip")
+    -- LSP and completion
+    Plug("williamboman/mason.nvim")
+    Plug("williamboman/mason-lspconfig.nvim")
+    Plug("hrsh7th/nvim-cmp")
+    Plug("hrsh7th/cmp-nvim-lsp")
+    Plug("hrsh7th/cmp-buffer")
+    Plug("hrsh7th/cmp-path")
 
--- Treesitter for better syntax highlighting
-Plug("nvim-treesitter/nvim-treesitter", { ["do"] = ":TSUpdate" })
+    -- Git integration
+    Plug("lewis6991/gitsigns.nvim")
 
--- Git integration
+    -- AI assistance
+    Plug("github/copilot.vim")
+    Plug("CopilotC-Nvim/CopilotChat.nvim", { branch = "main" })
+
+    -- Colorscheme
+    Plug("morhetz/gruvbox")
+end
+
+-- Plugins that work in both Neovim and VSCode
 Plug("tpope/vim-fugitive")
-Plug("lewis6991/gitsigns.nvim")
-
--- Editing enhancements
 Plug("tpope/vim-surround")
-Plug("numToStr/Comment.nvim") -- Modern commenting
-
--- AI assistance
-Plug("github/copilot.vim")
-Plug("CopilotC-Nvim/CopilotChat.nvim", { branch = "main" })
-
--- Colorscheme
-Plug("morhetz/gruvbox")
+Plug("numToStr/Comment.nvim")
 
 vim.call("plug#end")
 
@@ -233,50 +235,66 @@ vim.api.nvim_create_autocmd("VimEnter", {
             end
         end
 
+        -- Set initial colors
+        set_statusline_colors()
+
         -- Apply statusline colors on mode change
-        vim.api.nvim_create_autocmd({"ColorScheme", "VimEnter", "ModeChanged"}, {
+        vim.api.nvim_create_autocmd({"ColorScheme", "ModeChanged"}, {
             callback = set_statusline_colors,
             desc = "Update statusline colors based on mode"
         })
 
-        -- nvim-tree setup
-        local has_nvim_tree, nvim_tree = pcall(require, "nvim-tree")
-        if has_nvim_tree then
-            nvim_tree.setup({
-                view = {
-                    width = 30,
-                },
-                renderer = {
-                    group_empty = true,
-                },
-                filters = {
-                    dotfiles = false,
-                },
-            })
-            keymap("n", "<leader>n", ":NvimTreeToggle<CR>", { silent = true, desc = "Toggle file tree" })
+        -- nvim-tree setup (Neovim only)
+        if vim.g.vscode then
+            -- VSCode file explorer
+            keymap("n", "<leader>n", "<Cmd>call VSCodeNotify('workbench.files.action.focusFilesExplorer')<CR>", { silent = true, desc = "Toggle file tree" })
+        else
+            local has_nvim_tree, nvim_tree = pcall(require, "nvim-tree")
+            if has_nvim_tree then
+                nvim_tree.setup({
+                    view = {
+                        width = 30,
+                    },
+                    renderer = {
+                        group_empty = true,
+                    },
+                    filters = {
+                        dotfiles = false,
+                    },
+                })
+                keymap("n", "<leader>n", ":NvimTreeToggle<CR>", { silent = true, desc = "Toggle file tree" })
+            end
         end
 
-        -- Telescope setup
-        local has_telescope, telescope = pcall(require, "telescope")
-        if has_telescope then
-            telescope.setup({
-                defaults = {
-                    mappings = {
-                        i = {
-                            ["<C-j>"] = "move_selection_next",
-                            ["<C-k>"] = "move_selection_previous",
+        -- Telescope setup (Neovim only)
+        -- In VSCode, use native commands instead
+        if vim.g.vscode then
+            -- VSCode-specific keymaps
+            keymap("n", "<leader>s", "<Cmd>call VSCodeNotify('workbench.action.findInFiles')<CR>", { desc = "Search in files" })
+            keymap("n", "<leader>f", "<Cmd>call VSCodeNotify('workbench.action.quickOpen')<CR>", { desc = "Find files" })
+        else
+            -- Telescope setup (Neovim only)
+            local has_telescope, telescope = pcall(require, "telescope")
+            if has_telescope then
+                telescope.setup({
+                    defaults = {
+                        mappings = {
+                            i = {
+                                ["<C-j>"] = "move_selection_next",
+                                ["<C-k>"] = "move_selection_previous",
+                            },
                         },
                     },
-                },
-            })
-            pcall(telescope.load_extension, "fzf")
+                })
+                pcall(telescope.load_extension, "fzf")
 
-            local has_builtin, builtin = pcall(require, "telescope.builtin")
-            if has_builtin then
-                keymap("n", "<leader>s", builtin.live_grep, { desc = "Search in files" })
-                keymap("n", "<leader>f", builtin.find_files, { desc = "Find files" })
-                keymap("n", "<leader>b", builtin.buffers, { desc = "Find buffers" })
-                keymap("n", "<leader>w", builtin.grep_string, { desc = "Search word under cursor" })
+                local has_builtin, builtin = pcall(require, "telescope.builtin")
+                if has_builtin then
+                    keymap("n", "<leader>s", builtin.live_grep, { desc = "Search in files" })
+                    keymap("n", "<leader>f", builtin.find_files, { desc = "Find files" })
+                    keymap("n", "<leader>b", builtin.buffers, { desc = "Find buffers" })
+                    keymap("n", "<leader>w", builtin.grep_string, { desc = "Search word under cursor" })
+                end
             end
         end
 
@@ -289,131 +307,122 @@ vim.api.nvim_create_autocmd("VimEnter", {
         local has_mason_lsp, mason_lsp = pcall(require, "mason-lspconfig")
         if has_mason_lsp then
             mason_lsp.setup({
-                ensure_installed = { "pyright", "lua_ls" },
+                ensure_installed = { "pyright", "lua_ls", "clangd" },
                 automatic_installation = true,
             })
         end
 
-        -- LSP configuration using Neovim 0.11+ native API
-        local capabilities = require("cmp_nvim_lsp").default_capabilities()
+        -- LSP configuration (Neovim only, VSCode has its own LSP)
+        if not vim.g.vscode then
+            -- Only load LSP if cmp_nvim_lsp is available
+            local has_cmp_lsp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
+            if not has_cmp_lsp then
+                return
+            end
+            local capabilities = cmp_lsp.default_capabilities()
 
-        -- Python LSP
-        vim.lsp.config.pyright = {
-            cmd = { "pyright-langserver", "--stdio" },
-            filetypes = { "python" },
-            root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" },
-            capabilities = capabilities,
-            settings = {
-                python = {
-                    analysis = {
-                        typeCheckingMode = "basic",
-                        autoSearchPaths = true,
-                        useLibraryCodeForTypes = true,
+            -- Python LSP
+            vim.lsp.config.pyright = {
+                cmd = { "pyright-langserver", "--stdio" },
+                filetypes = { "python" },
+                root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", ".git" },
+                capabilities = capabilities,
+                settings = {
+                    python = {
+                        analysis = {
+                            typeCheckingMode = "basic",
+                            autoSearchPaths = true,
+                            useLibraryCodeForTypes = true,
+                        },
                     },
                 },
-            },
-        }
-        vim.lsp.enable("pyright")
+            }
+            vim.lsp.enable("pyright")
 
-        -- Lua LSP
-        vim.lsp.config.lua_ls = {
-            cmd = { "lua-language-server" },
-            filetypes = { "lua" },
-            root_markers = { ".luarc.json", ".luarc.jsonc", ".luacheckrc", ".stylua.toml", "stylua.toml", "selene.toml", "selene.yml", ".git" },
-            capabilities = capabilities,
-            settings = {
-                Lua = {
-                    diagnostics = {
-                        globals = { "vim" },
-                    },
-                    workspace = {
-                        library = vim.api.nvim_get_runtime_file("", true),
-                        checkThirdParty = false,
-                    },
-                    telemetry = {
-                        enable = false,
+            -- Lua LSP
+            vim.lsp.config.lua_ls = {
+                cmd = { "lua-language-server" },
+                filetypes = { "lua" },
+                root_markers = { ".luarc.json", ".luarc.jsonc", ".luacheckrc", ".stylua.toml", "stylua.toml", "selene.toml", "selene.yml", ".git" },
+                capabilities = capabilities,
+                settings = {
+                    Lua = {
+                        diagnostics = {
+                            globals = { "vim" },
+                        },
+                        workspace = {
+                            library = vim.api.nvim_get_runtime_file("", true),
+                            checkThirdParty = false,
+                        },
+                        telemetry = {
+                            enable = false,
+                        },
                     },
                 },
-            },
-        }
-        vim.lsp.enable("lua_ls")
+            }
+            vim.lsp.enable("lua_ls")
 
-        -- LSP keymaps
-        vim.api.nvim_create_autocmd("LspAttach", {
-            callback = function(args)
-                local opts = { buffer = args.buf }
-                keymap("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
-                keymap("n", "gD", vim.lsp.buf.declaration, vim.tbl_extend("force", opts, { desc = "Go to declaration" }))
-                keymap("n", "gi", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "Go to implementation" }))
-                keymap("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "Show references" }))
-                keymap("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover documentation" }))
-                keymap("n", "gn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "Rename symbol" }))
-                keymap("n", "[g", vim.diagnostic.goto_prev, vim.tbl_extend("force", opts, { desc = "Previous diagnostic" }))
-                keymap("n", "]g", vim.diagnostic.goto_next, vim.tbl_extend("force", opts, { desc = "Next diagnostic" }))
-                keymap("n", "<leader>d", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
-                keymap("n", "<leader>r", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "Show references" }))
-                keymap("n", "<leader>i", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "Go to implementation" }))
-            end,
-        })
+            -- C/C++ LSP
+            vim.lsp.config.clangd = {
+                cmd = { "clangd" },
+                filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
+                root_markers = { ".clangd", ".clang-tidy", ".clang-format", "compile_commands.json", "compile_flags.txt", "configure.ac", ".git" },
+                capabilities = capabilities,
+            }
+            vim.lsp.enable("clangd")
+        end
 
-        -- nvim-cmp setup (completion)
-        local has_cmp, cmp = pcall(require, "cmp")
-        local has_luasnip, luasnip = pcall(require, "luasnip")
-
-        if has_cmp and has_luasnip then
-            cmp.setup({
-                snippet = {
-                    expand = function(args)
-                        luasnip.lsp_expand(args.body)
-                    end,
-                },
-                mapping = cmp.mapping.preset.insert({
-                    ["<C-b>"] = cmp.mapping.scroll_docs(-4),
-                    ["<C-f>"] = cmp.mapping.scroll_docs(4),
-                    ["<C-Space>"] = cmp.mapping.complete(),
-                    ["<C-e>"] = cmp.mapping.abort(),
-                    ["<CR>"] = cmp.mapping.confirm({ select = true }),
-                    ["<Tab>"] = cmp.mapping(function(fallback)
-                        if cmp.visible() then
-                            cmp.select_next_item()
-                        elseif luasnip.expand_or_jumpable() then
-                            luasnip.expand_or_jump()
-                        else
-                            fallback()
-                        end
-                    end, { "i", "s" }),
-                    ["<S-Tab>"] = cmp.mapping(function(fallback)
-                        if cmp.visible() then
-                            cmp.select_prev_item()
-                        elseif luasnip.jumpable(-1) then
-                            luasnip.jump(-1)
-                        else
-                            fallback()
-                        end
-                    end, { "i", "s" }),
-                }),
-                sources = cmp.config.sources({
-                    { name = "nvim_lsp" },
-                    { name = "luasnip" },
-                    { name = "buffer" },
-                    { name = "path" },
-                }),
+        -- LSP keymaps (Neovim only)
+        if not vim.g.vscode then
+            vim.api.nvim_create_autocmd("LspAttach", {
+                callback = function(args)
+                    local opts = { buffer = args.buf }
+                    keymap("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
+                    keymap("n", "gD", vim.lsp.buf.declaration, vim.tbl_extend("force", opts, { desc = "Go to declaration" }))
+                    keymap("n", "gi", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "Go to implementation" }))
+                    keymap("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "Show references" }))
+                    keymap("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover documentation" }))
+                    keymap("n", "gn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "Rename symbol" }))
+                    keymap("n", "[g", vim.diagnostic.goto_prev, vim.tbl_extend("force", opts, { desc = "Previous diagnostic" }))
+                    keymap("n", "]g", vim.diagnostic.goto_next, vim.tbl_extend("force", opts, { desc = "Next diagnostic" }))
+                end,
             })
         end
 
-        -- Treesitter setup
-        local has_treesitter, treesitter = pcall(require, "nvim-treesitter.configs")
-        if has_treesitter then
-            treesitter.setup({
-                ensure_installed = { "python", "lua", "vim", "vimdoc", "bash" },
-                auto_install = true,
-                highlight = {
-                    enable = true,
-                },
-                indent = {
-                    enable = true,
-                },
-            })
+        -- nvim-cmp setup (completion, Neovim only)
+        if not vim.g.vscode then
+            local has_cmp, cmp = pcall(require, "cmp")
+
+            if has_cmp then
+                cmp.setup({
+                    mapping = cmp.mapping.preset.insert({
+                        ["<C-b>"] = cmp.mapping.scroll_docs(-4),
+                        ["<C-f>"] = cmp.mapping.scroll_docs(4),
+                        ["<C-Space>"] = cmp.mapping.complete(),
+                        ["<C-e>"] = cmp.mapping.abort(),
+                        ["<CR>"] = cmp.mapping.confirm({ select = true }),
+                        ["<Tab>"] = cmp.mapping(function(fallback)
+                            if cmp.visible() then
+                                cmp.select_next_item()
+                            else
+                                fallback()
+                            end
+                        end, { "i", "s" }),
+                        ["<S-Tab>"] = cmp.mapping(function(fallback)
+                            if cmp.visible() then
+                                cmp.select_prev_item()
+                            else
+                                fallback()
+                            end
+                        end, { "i", "s" }),
+                    }),
+                    sources = cmp.config.sources({
+                        { name = "nvim_lsp", priority = 1000 },
+                        { name = "buffer", priority = 700 },
+                        { name = "path", priority = 600 },
+                    }),
+                })
+            end
         end
 
         -- Comment.nvim setup
@@ -436,18 +445,20 @@ vim.api.nvim_create_autocmd("VimEnter", {
             })
         end
 
-        -- CopilotChat setup
-        local has_copilot_chat, copilot_chat = pcall(require, "CopilotChat")
-        if has_copilot_chat then
-            copilot_chat.setup({
-                model = "claude-3.5-sonnet",
-                prompts = {
-                    Explain = { prompt = "/COPILOT_EXPLAIN 解释已被选中的代码，用中文回答。" },
-                    Fix = { prompt = "/COPILOT_EXPLAIN 请检查和修复代码中的错误，用中文回答。" },
-                    Optimize = { prompt = "/COPILOT_EXPLAIN 优化选中的代码，用中文回答。" },
-                },
-            })
-            keymap("n", "<leader>cc", ":CopilotChatToggle<CR>", { desc = "Toggle Copilot Chat" })
+        -- CopilotChat setup (Neovim only)
+        if not vim.g.vscode then
+            local has_copilot_chat, copilot_chat = pcall(require, "CopilotChat")
+            if has_copilot_chat then
+                copilot_chat.setup({
+                    model = "claude-sonnet-4.5",
+                    prompts = {
+                        Explain = { prompt = "/COPILOT_EXPLAIN 解释已被选中的代码，用中文回答。" },
+                        Fix = { prompt = "/COPILOT_EXPLAIN 请检查和修复代码中的错误，用中文回答。" },
+                        Optimize = { prompt = "/COPILOT_EXPLAIN 优化选中的代码，用中文回答。" },
+                    },
+                })
+                keymap("n", "<leader>cc", ":CopilotChatToggle<CR>", { desc = "Toggle Copilot Chat" })
+            end
         end
     end,
 })
