@@ -200,10 +200,6 @@ if not vim.g.vscode then
     -- Git integration
     Plug("lewis6991/gitsigns.nvim")
 
-    -- AI assistance
-    Plug("github/copilot.vim")
-    Plug("CopilotC-Nvim/CopilotChat.nvim", { branch = "main" })
-
     -- Colorscheme
     Plug("morhetz/gruvbox")
 end
@@ -443,22 +439,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
                     changedelete = { text = "~" },
                 },
             })
-        end
-
-        -- CopilotChat setup (Neovim only)
-        if not vim.g.vscode then
-            local has_copilot_chat, copilot_chat = pcall(require, "CopilotChat")
-            if has_copilot_chat then
-                copilot_chat.setup({
-                    model = "claude-sonnet-4.5",
-                    prompts = {
-                        Explain = { prompt = "/COPILOT_EXPLAIN 解释已被选中的代码，用中文回答。" },
-                        Fix = { prompt = "/COPILOT_EXPLAIN 请检查和修复代码中的错误，用中文回答。" },
-                        Optimize = { prompt = "/COPILOT_EXPLAIN 优化选中的代码，用中文回答。" },
-                    },
-                })
-                keymap("n", "<leader>cc", ":CopilotChatToggle<CR>", { desc = "Toggle Copilot Chat" })
-            end
         end
     end,
 })
