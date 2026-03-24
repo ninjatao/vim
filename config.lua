@@ -259,6 +259,11 @@ vim.api.nvim_create_autocmd("VimEnter", {
                     },
                 })
                 keymap("n", "<leader>n", ":NvimTreeToggle<CR>", { silent = true, desc = "Toggle file tree" })
+                -- Auto open file tree only when opening a directory
+                local arg = vim.fn.argv(0)
+                if arg ~= "" and vim.fn.isdirectory(arg) == 1 then
+                    vim.cmd("NvimTreeOpen")
+                end
             end
         end
 
@@ -368,22 +373,37 @@ vim.api.nvim_create_autocmd("VimEnter", {
             vim.lsp.enable("clangd")
         end
 
-        -- LSP keymaps (Neovim only)
-        if not vim.g.vscode then
-            vim.api.nvim_create_autocmd("LspAttach", {
-                callback = function(args)
-                    local opts = { buffer = args.buf }
+        -- LSP keymaps
+        vim.api.nvim_create_autocmd("LspAttach", {
+            callback = function(args)
+                local opts = { buffer = args.buf }
+                if vim.g.vscode then
+                    keymap("n", "gd", "<Cmd>call VSCodeNotify('editor.action.revealDefinition')<CR>", vim.tbl_extend("force", opts, { desc = "Go to definition" }))
+                    keymap("n", "gD", "<Cmd>call VSCodeNotify('editor.action.revealDeclaration')<CR>", vim.tbl_extend("force", opts, { desc = "Go to declaration" }))
+                    keymap("n", "gi", "<Cmd>call VSCodeNotify('editor.action.goToImplementation')<CR>", vim.tbl_extend("force", opts, { desc = "Go to implementation" }))
+                    keymap("n", "gt", "<Cmd>call VSCodeNotify('editor.action.goToTypeDefinition')<CR>", vim.tbl_extend("force", opts, { desc = "Go to type definition" }))
+                    keymap("n", "gr", "<Cmd>call VSCodeNotify('editor.action.goToReferences')<CR>", vim.tbl_extend("force", opts, { desc = "Show references" }))
+                    keymap("n", "K", "<Cmd>call VSCodeNotify('editor.action.showHover')<CR>", vim.tbl_extend("force", opts, { desc = "Hover documentation" }))
+                    keymap("n", "gn", "<Cmd>call VSCodeNotify('editor.action.rename')<CR>", vim.tbl_extend("force", opts, { desc = "Rename symbol" }))
+                    keymap("n", "ga", "<Cmd>call VSCodeNotify('editor.action.quickFix')<CR>", vim.tbl_extend("force", opts, { desc = "Code action" }))
+                    keymap("n", "[g", "<Cmd>call VSCodeNotify('editor.action.marker.prev')<CR>", vim.tbl_extend("force", opts, { desc = "Previous diagnostic" }))
+                    keymap("n", "]g", "<Cmd>call VSCodeNotify('editor.action.marker.next')<CR>", vim.tbl_extend("force", opts, { desc = "Next diagnostic" }))
+                else
                     keymap("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
                     keymap("n", "gD", vim.lsp.buf.declaration, vim.tbl_extend("force", opts, { desc = "Go to declaration" }))
                     keymap("n", "gi", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "Go to implementation" }))
+                    keymap("n", "gt", vim.lsp.buf.type_definition, vim.tbl_extend("force", opts, { desc = "Go to type definition" }))
                     keymap("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "Show references" }))
                     keymap("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover documentation" }))
+                    keymap("n", "<C-k>", vim.lsp.buf.signature_help, vim.tbl_extend("force", opts, { desc = "Signature help" }))
                     keymap("n", "gn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "Rename symbol" }))
-                    keymap("n", "[g", vim.diagnostic.goto_prev, vim.tbl_extend("force", opts, { desc = "Previous diagnostic" }))
-                    keymap("n", "]g", vim.diagnostic.goto_next, vim.tbl_extend("force", opts, { desc = "Next diagnostic" }))
-                end,
-            })
-        end
+                    keymap("n", "ga", vim.lsp.buf.code_action, vim.tbl_extend("force", opts, { desc = "Code action" }))
+                    keymap("n", "gl", vim.diagnostic.open_float, vim.tbl_extend("force", opts, { desc = "Show diagnostic float" }))
+                    keymap("n", "[g", function() vim.diagnostic.jump({ count = -1 }) end, vim.tbl_extend("force", opts, { desc = "Previous diagnostic" }))
+                    keymap("n", "]g", function() vim.diagnostic.jump({ count = 1 }) end, vim.tbl_extend("force", opts, { desc = "Next diagnostic" }))
+                end
+            end,
+        })
 
         -- nvim-cmp setup (completion, Neovim only)
         if not vim.g.vscode then
