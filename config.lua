@@ -12,7 +12,6 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 -- Basic settings
-vim.opt.compatible = false
 vim.opt.mouse = ""
 vim.opt.history = 999
 vim.opt.autoread = true
@@ -262,7 +261,8 @@ vim.api.nvim_create_autocmd("VimEnter", {
                 -- Auto open file tree only when opening a directory
                 local arg = vim.fn.argv(0)
                 if arg ~= "" and vim.fn.isdirectory(arg) == 1 then
-                    vim.cmd("NvimTreeOpen")
+                    local dir = vim.fn.fnamemodify(arg, ":p")
+                    vim.cmd("NvimTreeOpen " .. vim.fn.fnameescape(dir))
                 end
             end
         end
@@ -315,12 +315,12 @@ vim.api.nvim_create_autocmd("VimEnter", {
 
         -- LSP configuration (Neovim only, VSCode has its own LSP)
         if not vim.g.vscode then
-            -- Only load LSP if cmp_nvim_lsp is available
+            -- vim.lsp.config / vim.lsp.enable require Neovim >= 0.11.
             local has_cmp_lsp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
-            if not has_cmp_lsp then
-                return
+            local capabilities = vim.lsp.protocol.make_client_capabilities()
+            if has_cmp_lsp then
+                capabilities = cmp_lsp.default_capabilities(capabilities)
             end
-            local capabilities = cmp_lsp.default_capabilities()
 
             -- Python LSP
             vim.lsp.config.pyright = {

@@ -8,7 +8,6 @@ Modern Neovim configuration with native LSP, Telescope, and Lua-based setup.
 
 - Mac
 - Ubuntu
-- Termux
 
 ## Prerequisite
 
@@ -39,28 +38,42 @@ curl -sSL https://raw.githubusercontent.com/ninjatao/vim/main/install_remote.sh 
 
 ## Key Mappings
 
-- `<Space>` - Leader key
-- `<leader>n` - Toggle file tree
-- `<leader>s` - Search in files (live grep)
-- `<leader>f` - Find files
-- `<leader>b` - Find buffers (Neovim only)
-- `<leader>w` - Search word under cursor (Neovim only)
-- `<leader>cc` - Toggle Copilot Chat (Neovim only)
-- `gd` - Go to definition
-- `gD` - Go to declaration
-- `gi` - Go to implementation
-- `gr` - Show references
-- `gn` - Rename symbol
-- `K` - Hover documentation
-- `[g` / `]g` - Navigate diagnostics
-- `<C-c>` - Copy to system clipboard
-- `<C-v>` - Paste from system clipboard
+### Custom Mappings
+
+- `<Space>`: leader key
+- `<leader><CR>`: clear search highlight
+- `<C-c>`: copy selection or current line to the system clipboard
+- `<C-v>`: paste from the system clipboard
+
+### Native Neovim
+
+- `<leader>n`: toggle `nvim-tree`
+- `<leader>s`: Telescope live grep
+- `<leader>f`: Telescope find files
+- `<leader>b`: Telescope buffers
+- `<leader>w`: Telescope grep string under cursor
+
+### VSCode / Kiro
+
+- `<leader>n`: focus the VSCode file explorer
+- `<leader>s`: open VSCode "Find in Files"
+- `<leader>f`: open VSCode Quick Open
+- `q:`: disabled to avoid command-line window issues
+- `q/`: disabled to avoid search command-line window issues
+- `q?`: disabled to avoid search command-line window issues
+
+### Plugin Default Mappings
+
+- `gc`: toggle line comments via `Comment.nvim`
+- `gb`: toggle block comments via `Comment.nvim`
+- `ys`, `ds`, `cs`: add, delete, and change surroundings via `vim-surround`
+- `:Git`, `:Gdiffsplit`, `:Git blame`: common `vim-fugitive` commands available after plugin load
 
 ## VSCode/Kiro Integration
 
 This configuration works in both native Neovim and VSCode/Kiro with Neovim extension:
 
-- **Native Neovim**: Full features including LSP, completion, file tree, Telescope, Copilot
+- **Native Neovim**: Full features including native LSP, completion, file tree, Telescope, and Git signs
 - **VSCode/Kiro**: Minimal subset with vim-surround, Comment.nvim, vim-fugitive
   - Telescope keybindings mapped to VSCode commands
   - Uses VSCode's native LSP and completion
