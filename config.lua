@@ -11,6 +11,10 @@ vim.g.loaded_global_setting = 1
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+-- Disable netrw early to avoid directory-opening races with nvim-tree.
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- Basic settings
 vim.opt.mouse = ""
 vim.opt.history = 999
@@ -247,6 +251,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
             local has_nvim_tree, nvim_tree = pcall(require, "nvim-tree")
             if has_nvim_tree then
                 nvim_tree.setup({
+                    disable_netrw = true,
                     view = {
                         width = 30,
                     },
@@ -256,13 +261,15 @@ vim.api.nvim_create_autocmd("VimEnter", {
                     filters = {
                         dotfiles = false,
                     },
+                    hijack_directories = {
+                        enable = true,
+                        auto_open = true,
+                    },
                 })
                 keymap("n", "<leader>n", ":NvimTreeToggle<CR>", { silent = true, desc = "Toggle file tree" })
-                -- Auto open file tree only when opening a directory
-                local arg = vim.fn.argv(0)
-                if arg ~= "" and vim.fn.isdirectory(arg) == 1 then
-                    local dir = vim.fn.fnamemodify(arg, ":p")
-                    vim.cmd("NvimTreeOpen " .. vim.fn.fnameescape(dir))
+                local startup_buf = vim.api.nvim_buf_get_name(0)
+                if startup_buf ~= "" and vim.fn.isdirectory(startup_buf) == 1 then
+                    require("nvim-tree.api").tree.open({ path = startup_buf })
                 end
             end
         end
