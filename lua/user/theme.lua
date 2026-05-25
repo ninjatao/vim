@@ -4,8 +4,10 @@ local function set(group, opts)
     vim.api.nvim_set_hl(0, group, opts)
 end
 
-function M.set_statusline_colors()
-    local mode = vim.fn.mode()
+function M.set_statusline_colors(mode)
+    if type(mode) ~= "string" then
+        mode = vim.fn.mode()
+    end
     if mode:match("^[iR]") then
         set("StatusLineMode", { fg = "#000000", bg = "#add8e6", bold = true })
     elseif mode:match("^[vsV\22]") then

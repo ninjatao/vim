@@ -1,5 +1,7 @@
 local M = {}
 
+local theme = require("user.theme")
+
 local mode_map = {
     n = "NORMAL",
     v = "VISUAL",
@@ -41,6 +43,7 @@ end
 
 function _G.custom_statusline()
     local raw_mode = vim.fn.mode()
+    theme.set_statusline_colors(raw_mode)
     local mode = mode_map[raw_mode] or raw_mode
     local modified = vim.bo.modified and " [+]" or ""
     local encoding = vim.bo.fileencoding ~= "utf-8" and vim.bo.fileencoding ~= "" and "[" .. vim.bo.fileencoding .. "]" or ""
