@@ -13,11 +13,26 @@ require_cmd() {
     fi
 }
 
+is_repo_checkout() {
+    local url="$1"
+    case "$url" in
+        https://github.com/ninjatao/vim|https://github.com/ninjatao/vim.git|git@github.com:ninjatao/vim.git|ssh://git@github.com/ninjatao/vim.git)
+            return 0
+            ;;
+        https://github.com/*/vim|https://github.com/*/vim.git|git@github.com:*/vim.git|ssh://git@github.com/*/vim.git)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
 ensure_target_available() {
     if [ -d "$TARGET_DIR/.git" ]; then
         local remote_url
         remote_url=$(git -C "$TARGET_DIR" remote get-url origin 2>/dev/null || true)
-        if [ "$remote_url" != "$REPO_URL" ]; then
+        if ! is_repo_checkout "$remote_url"; then
             echo "Error: $TARGET_DIR already exists but is not this repository." >&2
             echo "Move it aside or install manually." >&2
             exit 1
@@ -34,7 +49,7 @@ ensure_target_available() {
     if [ -d "$LEGACY_DIR/.git" ]; then
         local legacy_remote
         legacy_remote=$(git -C "$LEGACY_DIR" remote get-url origin 2>/dev/null || true)
-        if [ "$legacy_remote" = "$REPO_URL" ]; then
+        if is_repo_checkout "$legacy_remote"; then
             echo "Found legacy checkout at $LEGACY_DIR." >&2
             echo "Please migrate it manually to $TARGET_DIR or remove it before running quick install." >&2
             exit 1

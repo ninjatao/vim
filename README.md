@@ -26,6 +26,8 @@ Automatic dependency installation is currently supported on:
 - Debian/Ubuntu-compatible Linux with `apt`
 - Termux
 
+On Debian/Ubuntu systems, the installer verifies the final `nvim` version after package installation. If your distro package is older than `0.11`, install a newer Neovim release manually before rerunning the script.
+
 ## Prerequisites
 
 - Neovim `>= 0.11`
@@ -79,10 +81,11 @@ cd ~/.config/nvim
 - If `~/.config/nvim` already exists and is not this repository, the installer stops instead of overwriting it.
 - If you previously cloned this repo into `~/.vim`, move it to `~/.config/nvim` manually before rerunning the installer.
 - The legacy `~/.vim` layout is no longer the default install target.
+- This repository now includes its own `init.lua`; the installer no longer generates an untracked stub file inside the checkout.
 
 ## Configuration Layout
 
-The entry file is `config.lua`. It loads the following modules:
+The Neovim entry file is `init.lua`, which loads `config.lua`. `config.lua` then loads the following modules:
 
 - `lua/user/options.lua`: core editor options
 - `lua/user/theme.lua`: custom light theme and statusline colors

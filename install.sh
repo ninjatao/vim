@@ -7,6 +7,23 @@ cd "$workpath"
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
 DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/nvim"
 PLUG_PATH="$DATA_DIR/site/autoload/plug.vim"
+MIN_NVIM_MINOR=11
+
+prepend_path_if_dir() {
+    local dir="$1"
+    if [ -d "$dir" ]; then
+        case ":$PATH:" in
+            *:"$dir":*) ;;
+            *) export PATH="$dir:$PATH" ;;
+        esac
+    fi
+}
+
+prepend_common_bin_paths() {
+    prepend_path_if_dir "$HOME/.local/bin"
+    prepend_path_if_dir "/usr/local/bin"
+    prepend_path_if_dir "/opt/homebrew/bin"
+}
 
 require_cmd() {
     local cmd="$1"
@@ -17,7 +34,7 @@ require_cmd() {
 }
 
 ensure_repo_layout() {
-    if [ ! -f "$workpath/config.lua" ]; then
+    if [ ! -f "$workpath/config.lua" ] || [ ! -f "$workpath/init.lua" ]; then
         echo "Error: install.sh must be run from the repository root." >&2
         exit 1
     fi
@@ -31,11 +48,6 @@ ensure_config_target() {
         exit 1
     fi
 
-    if [ -e "$CONFIG_DIR/init.lua" ] && ! grep -Fq "dofile('$workpath/config.lua')" "$CONFIG_DIR/init.lua"; then
-        echo "Error: $CONFIG_DIR/init.lua already exists and is not managed by this repository." >&2
-        echo "Back it up before installing." >&2
-        exit 1
-    fi
 }
 
 install_vim_plug() {
@@ -151,6 +163,26 @@ install_platform_dependencies() {
     esac
 }
 
+require_minimum_nvim() {
+    local version_output
+    local minor
+
+    require_cmd nvim
+    version_output="$(nvim --version | head -n 1)"
+    minor="$(printf '%s\n' "$version_output" | sed -n 's/.*NVIM v0\.\([0-9][0-9]*\).*/\1/p')"
+
+    if [ -z "$minor" ]; then
+        echo "Error: could not determine Neovim version from: $version_output" >&2
+        exit 1
+    fi
+
+    if [ "$minor" -lt "$MIN_NVIM_MINOR" ]; then
+        echo "Error: Neovim 0.$MIN_NVIM_MINOR+ is required, found: $version_output" >&2
+        echo "Install a newer Neovim release manually, then rerun ./install.sh." >&2
+        exit 1
+    fi
+}
+
 install_python_tooling() {
     if [ "${INSTALL_OPTIONAL_PYTHON_TOOLS:-1}" = "0" ]; then
         echo "Skipping optional Python tooling."
@@ -170,21 +202,8 @@ install_python_tooling() {
     fi
 }
 
-write_init_file() {
-    mkdir -p "$CONFIG_DIR"
-
-    cat <<INITLUA > "$CONFIG_DIR/init.lua"
--- Neovim init.lua
--- Load configuration from repository checkout
-vim.opt.runtimepath:prepend('$workpath')
-dofile('$workpath/config.lua')
-INITLUA
-
-    echo "Created $CONFIG_DIR/init.lua"
-}
-
 install_plugins() {
-    require_cmd nvim
+    require_minimum_nvim
     echo "Installing Neovim plugins..."
     nvim --headless "+PlugInstall --sync" "+qall"
 }
@@ -209,10 +228,10 @@ EOF
 }
 
 ensure_repo_layout
+prepend_common_bin_paths
 ensure_config_target
 install_platform_dependencies
 install_vim_plug
 install_python_tooling
-write_init_file
 install_plugins
 show_post_install_notes
