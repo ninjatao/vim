@@ -57,6 +57,12 @@ function _G.custom_statusline()
 end
 
 function M.setup()
+    if vim.g.vscode then
+        -- vscode-neovim keeps its own status UI; this custom statusline can
+        -- stall Cursor's visual cursor redraw while Neovim state still moves.
+        return
+    end
+
     vim.opt.statusline = "%!v:lua.custom_statusline()"
 end
 

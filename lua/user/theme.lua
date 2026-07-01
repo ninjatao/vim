@@ -75,6 +75,7 @@ function M.apply()
     set("DiagnosticUnderlineWarn", { sp = "#b47109", undercurl = true })
     set("DiagnosticUnderlineInfo", { sp = "#45707a", undercurl = true })
     set("DiagnosticUnderlineHint", { sp = "#6c782e", undercurl = true })
+    set("@markup.strikethrough", { strikethrough = false })
 
     M.set_statusline_colors()
 end
