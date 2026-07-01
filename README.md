@@ -29,7 +29,6 @@ Automatic dependency installation is currently supported on:
 ## Prerequisites
 
 - Neovim `>= 0.11`
-- Python 3
 - Node.js `>= 18`
 - `npm`
 - `git`
@@ -61,6 +60,7 @@ This installer:
 It requires `git` and `curl` to already be installed.
 
 On apt-based systems, the installer checks for usable commands first. If you installed Node.js from NodeSource or another third-party source and already have a working `npm`, it will not try to force-install Ubuntu's separate `npm` package.
+The installer may also try to add optional Python tooling such as `pylint`, but failure to install that tooling does not block Neovim setup. Set `INSTALL_OPTIONAL_PYTHON_TOOLS=0` to skip that step entirely.
 
 ### Manual Install
 

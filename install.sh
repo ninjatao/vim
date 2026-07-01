@@ -80,8 +80,6 @@ install_with_apt() {
         "gcc:gcc"
         "git:git"
         "curl:curl"
-        "python3:python3"
-        "pip3:python3-pip"
     )
     local missing=()
     local spec
@@ -142,7 +140,7 @@ install_platform_dependencies() {
                 install_with_apt
             else
                 echo "Automatic dependency install is only supported for apt-based Linux and Termux." >&2
-                echo "Please install manually: neovim, nodejs/npm, ripgrep, make, gcc/clang, git, curl, python3, python3-pip." >&2
+                echo "Please install manually: neovim, nodejs/npm, ripgrep, make, gcc/clang, git, curl." >&2
                 exit 1
             fi
             ;;
@@ -154,10 +152,18 @@ install_platform_dependencies() {
 }
 
 install_python_tooling() {
+    if [ "${INSTALL_OPTIONAL_PYTHON_TOOLS:-1}" = "0" ]; then
+        echo "Skipping optional Python tooling."
+        return
+    fi
+
     if command -v pip3 > /dev/null 2>&1; then
         if ! pip3 show pylint > /dev/null 2>&1; then
-            echo "Installing pylint..."
-            pip3 install pylint
+            echo "Attempting optional pylint installation..."
+            if ! pip3 install pylint; then
+                echo "Warning: could not install pylint automatically." >&2
+                echo "If you want pylint, install it with pipx, a virtualenv, or your system package manager." >&2
+            fi
         fi
     else
         echo "Warning: pip3 not found; skipping optional pylint installation."
