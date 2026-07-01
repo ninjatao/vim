@@ -20,11 +20,20 @@ The config is designed to work in both:
 - macOS
 - Ubuntu
 
+Automatic dependency installation is currently supported on:
+
+- macOS with Homebrew
+- Debian/Ubuntu-compatible Linux with `apt`
+- Termux
+
 ## Prerequisites
 
 - Neovim `>= 0.11`
 - Python 3
 - Node.js `>= 18`
+- `npm`
+- `git`
+- `curl`
 - `ripgrep`
 - `make` and a C compiler for `telescope-fzf-native`
 
@@ -40,31 +49,47 @@ The setup uses [vim-plug](https://github.com/junegunn/vim-plug).
 curl -sSL https://raw.githubusercontent.com/ninjatao/vim/main/install_remote.sh | bash
 ```
 
+This installer:
+
+- clones the repository into `~/.config/nvim` or `$XDG_CONFIG_HOME/nvim`
+- refuses to overwrite an unrelated existing Neovim config
+- installs `vim-plug`
+- installs dependencies only on supported package-manager setups
+
+It requires `git` and `curl` to already be installed.
+
 ### Manual Install
 
-1. Install Neovim `>= 0.11`.
-2. Clone this repo to `~/.vim`.
-3. Run:
+1. Install the prerequisites above.
+2. Back up any existing `~/.config/nvim` if you already use Neovim.
+3. Clone this repo to `~/.config/nvim`.
+4. Run:
 
 ```bash
-cd ~/.vim
+cd ~/.config/nvim
 ./install.sh
 ```
 
+### Existing Configs And Migration
+
+- If `~/.config/nvim` already exists and is not this repository, the installer stops instead of overwriting it.
+- If you previously cloned this repo into `~/.vim`, move it to `~/.config/nvim` manually before rerunning the installer.
+- The legacy `~/.vim` layout is no longer the default install target.
+
 ## Configuration Layout
 
-The entry file is [config.lua](/Users/duantao/.vim/config.lua:1). It loads the following modules:
+The entry file is `config.lua`. It loads the following modules:
 
-- [lua/user/options.lua](/Users/duantao/.vim/lua/user/options.lua:1): core editor options
-- [lua/user/theme.lua](/Users/duantao/.vim/lua/user/theme.lua:1): custom light theme and statusline colors
-- [lua/user/statusline.lua](/Users/duantao/.vim/lua/user/statusline.lua:1): custom statusline rendering
-- [lua/user/keymaps.lua](/Users/duantao/.vim/lua/user/keymaps.lua:1): global, LSP, Telescope, and VSCode keymaps
-- [lua/user/autocmds.lua](/Users/duantao/.vim/lua/user/autocmds.lua:1): save-time cleanup and color-sync autocmds
-- [lua/user/plugins.lua](/Users/duantao/.vim/lua/user/plugins.lua:1): `vim-plug` plugin declarations
-- [lua/user/ui.lua](/Users/duantao/.vim/lua/user/ui.lua:1): `nvim-tree` and Telescope setup
-- [lua/user/lsp.lua](/Users/duantao/.vim/lua/user/lsp.lua:1): Mason and built-in LSP configuration
-- [lua/user/completion.lua](/Users/duantao/.vim/lua/user/completion.lua:1): `nvim-cmp` setup
-- [lua/user/integrations.lua](/Users/duantao/.vim/lua/user/integrations.lua:1): `Comment.nvim` and `gitsigns.nvim`
+- `lua/user/options.lua`: core editor options
+- `lua/user/theme.lua`: custom light theme and statusline colors
+- `lua/user/statusline.lua`: custom statusline rendering
+- `lua/user/keymaps.lua`: global, LSP, Telescope, and VSCode keymaps
+- `lua/user/autocmds.lua`: save-time cleanup and color-sync autocmds
+- `lua/user/plugins.lua`: `vim-plug` plugin declarations
+- `lua/user/ui.lua`: `nvim-tree` and Telescope setup
+- `lua/user/lsp.lua`: Mason and built-in LSP configuration
+- `lua/user/completion.lua`: `nvim-cmp` setup
+- `lua/user/integrations.lua`: `Comment.nvim` and `gitsigns.nvim`
 
 ## Theme
 
@@ -80,7 +105,7 @@ Statusline mode colors:
 - insert/replace: light blue
 - visual: bright yellow
 
-The theme is defined entirely in [lua/user/theme.lua](/Users/duantao/.vim/lua/user/theme.lua:1), without depending on an external colorscheme plugin.
+The theme is defined entirely in `lua/user/theme.lua`, without depending on an external colorscheme plugin.
 
 ## Key Mappings
 
@@ -145,6 +170,8 @@ You get the full stack:
 - `nvim-tree`
 - `gitsigns`
 
+On first launch, Mason may still need a moment to install or finish setting up language servers such as `pyright`, `lua_ls`, and `clangd`.
+
 ### VSCode / Kiro
 
 You get a reduced setup:
@@ -157,5 +184,6 @@ You get a reduced setup:
 
 ## Notes
 
-- if `vim-plug` is missing, the config prints a reminder to run `:PlugInstall`
+- if `vim-plug` is missing, startup stops plugin registration and shows an explicit error directing you to rerun `./install.sh`
 - if Neovim is older than `0.11`, built-in LSP setup is skipped and a warning is shown
+- automatic package installation is intentionally conservative; unsupported package managers must install prerequisites manually

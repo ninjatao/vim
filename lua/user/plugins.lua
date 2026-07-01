@@ -3,7 +3,11 @@ local M = {}
 function M.setup()
     local vim_plug_path = vim.fn.stdpath("data") .. "/site/autoload/plug.vim"
     if vim.fn.empty(vim.fn.glob(vim_plug_path)) > 0 then
-        print("vim-plug not found. Run :PlugInstall after installation.")
+        vim.notify(
+            "vim-plug not found. Run ./install.sh from the repository root, or install plug.vim before starting Neovim.",
+            vim.log.levels.ERROR
+        )
+        return
     end
 
     local Plug = vim.fn["plug#"]
