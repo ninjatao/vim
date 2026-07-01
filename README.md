@@ -37,6 +37,8 @@ Automatic dependency installation is currently supported on:
 - `ripgrep`
 - `make` and a C compiler for `telescope-fzf-native`
 
+On macOS, Xcode Command Line Tools provide the required compiler toolchain. Homebrew `gcc` is not required.
+
 ## Plugin Manager
 
 The setup uses [vim-plug](https://github.com/junegunn/vim-plug).

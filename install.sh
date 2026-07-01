@@ -49,7 +49,7 @@ install_vim_plug() {
 }
 
 install_with_brew() {
-    local packages=(neovim node ripgrep make gcc)
+    local packages=(neovim node ripgrep make)
     local missing=()
     local pkg
     for pkg in "${packages[@]}"; do
@@ -57,6 +57,12 @@ install_with_brew() {
             missing+=("$pkg")
         fi
     done
+
+    if ! xcode-select -p > /dev/null 2>&1; then
+        echo "Error: Xcode Command Line Tools are required on macOS." >&2
+        echo "Run: xcode-select --install" >&2
+        exit 1
+    fi
 
     if [ "${#missing[@]}" -gt 0 ]; then
         echo "Installing Homebrew dependencies: ${missing[*]}"
@@ -125,7 +131,7 @@ install_platform_dependencies() {
                 install_with_brew
             else
                 echo "Error: Homebrew is required on macOS for automatic dependency install." >&2
-                echo "Install brew or install dependencies manually: neovim node ripgrep make gcc git curl python3." >&2
+                echo "Install brew or install dependencies manually: neovim node ripgrep make git curl python3." >&2
                 exit 1
             fi
             ;;
