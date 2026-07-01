@@ -65,11 +65,24 @@ install_with_brew() {
 }
 
 install_with_apt() {
-    local packages=(neovim nodejs npm ripgrep make gcc git curl python3 python3-pip)
+    local package_specs=(
+        "nvim:neovim"
+        "node:nodejs"
+        "npm:npm"
+        "rg:ripgrep"
+        "make:make"
+        "gcc:gcc"
+        "git:git"
+        "curl:curl"
+        "python3:python3"
+        "pip3:python3-pip"
+    )
     local missing=()
-    local pkg
-    for pkg in "${packages[@]}"; do
-        if ! dpkg -s "$pkg" > /dev/null 2>&1; then
+    local spec
+    for spec in "${package_specs[@]}"; do
+        local cmd="${spec%%:*}"
+        local pkg="${spec#*:}"
+        if ! command -v "$cmd" > /dev/null 2>&1; then
             missing+=("$pkg")
         fi
     done

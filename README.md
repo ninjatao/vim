@@ -58,6 +58,8 @@ This installer:
 
 It requires `git` and `curl` to already be installed.
 
+On apt-based systems, the installer checks for usable commands first. If you installed Node.js from NodeSource or another third-party source and already have a working `npm`, it will not try to force-install Ubuntu's separate `npm` package.
+
 ### Manual Install
 
 1. Install the prerequisites above.
