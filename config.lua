@@ -32,14 +32,15 @@ autocmds.setup(theme)
 
 -- Keep interactive setup out of headless bootstrap runs so installer commands can exit cleanly.
 if not vim.g.nvim_install_mode then
+    ui.setup_telescope(keymaps)
+    lsp.setup()
+    completion.setup()
+    integrations.setup_gitsigns()
+
     vim.api.nvim_create_autocmd("VimEnter", {
         callback = function()
             ui.setup_nvim_tree(keymaps)
             ui.setup_smear_cursor()
-            ui.setup_telescope(keymaps)
-            lsp.setup()
-            completion.setup()
-            integrations.setup_gitsigns()
         end,
     })
 end
