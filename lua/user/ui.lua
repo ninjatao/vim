@@ -84,4 +84,27 @@ function M.setup_telescope(keymaps)
     end
 end
 
+function M.setup_smear_cursor()
+    if vim.g.vscode then
+        return
+    end
+
+    local has_smear, smear_cursor = pcall(require, "smear_cursor")
+    if not has_smear then
+        return
+    end
+
+    smear_cursor.setup({
+        stiffness = 0.55,
+        trailing_stiffness = 0.35,
+        damping = 0.72,
+        trailing_exponent = 2,
+        distance_stop_animating = 0.5,
+        hide_target_hack = false,
+        legacy_computing_symbols_support = false,
+        smear_insert_mode = true,
+        cursor_color = "#000000",
+    })
+end
+
 return M

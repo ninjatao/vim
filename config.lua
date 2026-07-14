@@ -33,6 +33,7 @@ autocmds.setup(theme)
 vim.api.nvim_create_autocmd("VimEnter", {
     callback = function()
         ui.setup_nvim_tree(keymaps)
+        ui.setup_smear_cursor()
         ui.setup_telescope(keymaps)
         lsp.setup()
         completion.setup()
