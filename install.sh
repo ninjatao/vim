@@ -205,11 +205,15 @@ install_python_tooling() {
 install_plugins() {
     require_minimum_nvim
     echo "Installing Neovim plugins..."
-    nvim --headless "+PlugInstall --sync" "+qall"
+    nvim --headless --cmd "let g:nvim_install_mode=1" "+PlugInstall --sync" "+qall"
     echo "Installing Mason-managed tools (this may take a while on first setup)..."
     echo "If this step is slow on a new machine, you can rerun:"
-    echo "  nvim --headless \"+MasonToolsInstallSync\" +qall"
-    nvim --headless "+MasonToolsInstallSync" "+qall"
+    echo "  ./install.sh"
+    # MasonToolsInstallSync may not return in this headless bootstrap flow; call its API directly instead.
+    nvim --headless --cmd "let g:nvim_install_mode=1" \
+        "+lua require('user.lsp').setup_mason({ run_on_start = false, debounce_hours = 0 })" \
+        "+lua require('mason-tool-installer').check_install(false, true)" \
+        "+qall"
 }
 
 show_post_install_notes() {
@@ -224,7 +228,7 @@ Config dir: $CONFIG_DIR
 Notes:
 - Mason-managed language servers are installed during setup.
 - If Mason tool installation is slow on a new machine, rerun:
-  nvim --headless "+MasonToolsInstallSync" +qall
+  ./install.sh
 - This setup expects Neovim 0.11+ for built-in LSP support.
 - If you previously used $HOME/.vim for this repo, remove or archive that legacy checkout manually.
 

@@ -76,10 +76,10 @@ cd ~/.config/nvim
 ./install.sh
 ```
 
-The installer runs `:MasonToolsInstallSync` before finishing, so `pyright`, `lua-language-server`, `clangd`, and `marksman` are provisioned during setup. On a new machine this step can be slow; if it is interrupted, rerun:
+The installer performs a dedicated headless Mason sync before finishing, so `pyright`, `lua-language-server`, `clangd`, and `marksman` are provisioned during setup. On a new machine this step can be slow; if it is interrupted, rerun:
 
 ```bash
-nvim --headless "+MasonToolsInstallSync" +qall
+./install.sh
 ```
 
 ### Existing Configs And Migration

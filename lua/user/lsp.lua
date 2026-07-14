@@ -1,9 +1,8 @@
 local M = {}
+local mason_ensure_installed = { "pyright", "lua-language-server", "clangd", "marksman" }
 
-function M.setup()
-    if vim.g.vscode then
-        return
-    end
+function M.setup_mason(opts)
+    opts = opts or {}
 
     local has_mason, mason = pcall(require, "mason")
     if has_mason then
@@ -12,13 +11,22 @@ function M.setup()
 
     local has_mason_tools, mason_tools = pcall(require, "mason-tool-installer")
     if has_mason_tools then
+        -- install.sh reuses this setup with startup installation disabled, then invokes the API directly.
         mason_tools.setup({
-            ensure_installed = { "pyright", "lua-language-server", "clangd", "marksman" },
-            run_on_start = true,
-            auto_update = false,
-            debounce_hours = 24,
+            ensure_installed = mason_ensure_installed,
+            run_on_start = opts.run_on_start ~= false,
+            auto_update = opts.auto_update or false,
+            debounce_hours = opts.debounce_hours == nil and 24 or opts.debounce_hours,
         })
     end
+end
+
+function M.setup()
+    if vim.g.vscode then
+        return
+    end
+
+    M.setup_mason()
 
     if vim.fn.has("nvim-0.11") ~= 1 then
         vim.notify("Neovim 0.11+ is required for built-in LSP config in this setup", vim.log.levels.WARN)
