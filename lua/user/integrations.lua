@@ -1,12 +1,5 @@
 local M = {}
 
-function M.setup_comment()
-    local has_comment, comment = pcall(require, "Comment")
-    if has_comment then
-        comment.setup()
-    end
-end
-
 function M.setup_gitsigns()
     if vim.g.vscode then
         return

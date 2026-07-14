@@ -37,7 +37,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
         ui.setup_telescope(keymaps)
         lsp.setup()
         completion.setup()
-        integrations.setup_comment()
         integrations.setup_gitsigns()
     end,
 })

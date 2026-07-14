@@ -21,17 +21,13 @@ function M.setup()
         Plug("nvim-telescope/telescope.nvim")
         Plug("nvim-telescope/telescope-fzf-native.nvim", { ["do"] = "make" })
         Plug("williamboman/mason.nvim")
-        Plug("williamboman/mason-lspconfig.nvim")
-        Plug("hrsh7th/nvim-cmp")
-        Plug("hrsh7th/cmp-nvim-lsp")
-        Plug("hrsh7th/cmp-buffer")
-        Plug("hrsh7th/cmp-path")
+        Plug("WhoIsSethDaniel/mason-tool-installer.nvim")
+        Plug("Saghen/blink.cmp", { ["branch"] = "v1" })
         Plug("lewis6991/gitsigns.nvim")
     end
 
     Plug("tpope/vim-fugitive")
     Plug("tpope/vim-surround")
-    Plug("numToStr/Comment.nvim")
 
     vim.call("plug#end")
 end

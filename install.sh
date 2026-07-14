@@ -206,6 +206,10 @@ install_plugins() {
     require_minimum_nvim
     echo "Installing Neovim plugins..."
     nvim --headless "+PlugInstall --sync" "+qall"
+    echo "Installing Mason-managed tools (this may take a while on first setup)..."
+    echo "If this step is slow on a new machine, you can rerun:"
+    echo "  nvim --headless \"+MasonToolsInstallSync\" +qall"
+    nvim --headless "+MasonToolsInstallSync" "+qall"
 }
 
 show_post_install_notes() {
@@ -218,7 +222,9 @@ Repository: $workpath
 Config dir: $CONFIG_DIR
 
 Notes:
-- First launch may still download language servers via Mason.
+- Mason-managed language servers are installed during setup.
+- If Mason tool installation is slow on a new machine, rerun:
+  nvim --headless "+MasonToolsInstallSync" +qall
 - This setup expects Neovim 0.11+ for built-in LSP support.
 - If you previously used $HOME/.vim for this repo, remove or archive that legacy checkout manually.
 

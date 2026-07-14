@@ -5,38 +5,26 @@ function M.setup()
         return
     end
 
-    local has_cmp, cmp = pcall(require, "cmp")
-    if not has_cmp then
+    local has_blink, blink = pcall(require, "blink.cmp")
+    if not has_blink then
         return
     end
 
-    cmp.setup({
-        mapping = cmp.mapping.preset.insert({
-            ["<C-b>"] = cmp.mapping.scroll_docs(-4),
-            ["<C-f>"] = cmp.mapping.scroll_docs(4),
-            ["<C-Space>"] = cmp.mapping.complete(),
-            ["<C-e>"] = cmp.mapping.abort(),
-            ["<CR>"] = cmp.mapping.confirm({ select = false }),
-            ["<Tab>"] = cmp.mapping(function(fallback)
-                if cmp.visible() then
-                    cmp.select_next_item()
-                else
-                    fallback()
-                end
-            end, { "i", "s" }),
-            ["<S-Tab>"] = cmp.mapping(function(fallback)
-                if cmp.visible() then
-                    cmp.select_prev_item()
-                else
-                    fallback()
-                end
-            end, { "i", "s" }),
-        }),
-        sources = cmp.config.sources({
-            { name = "nvim_lsp", priority = 1000 },
-            { name = "buffer", priority = 700 },
-            { name = "path", priority = 600 },
-        }),
+    blink.setup({
+        keymap = {
+            preset = "default",
+            ["<C-b>"] = { "scroll_documentation_up", "fallback" },
+            ["<C-f>"] = { "scroll_documentation_down", "fallback" },
+            ["<C-Space>"] = { "show", "show_documentation", "hide_documentation" },
+            ["<C-e>"] = { "cancel", "fallback" },
+            ["<CR>"] = { "accept", "fallback" },
+            ["<Tab>"] = { "select_next", "fallback" },
+            ["<S-Tab>"] = { "select_prev", "fallback" },
+        },
+        snippets = { preset = "default" },
+        sources = {
+            default = { "lsp", "path", "buffer" },
+        },
     })
 end
 

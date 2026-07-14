@@ -10,11 +10,13 @@ function M.setup()
         mason.setup()
     end
 
-    local has_mason_lsp, mason_lsp = pcall(require, "mason-lspconfig")
-    if has_mason_lsp then
-        mason_lsp.setup({
-            ensure_installed = { "pyright", "lua_ls", "clangd" },
-            automatic_installation = true,
+    local has_mason_tools, mason_tools = pcall(require, "mason-tool-installer")
+    if has_mason_tools then
+        mason_tools.setup({
+            ensure_installed = { "pyright", "lua-language-server", "clangd", "marksman" },
+            run_on_start = true,
+            auto_update = false,
+            debounce_hours = 24,
         })
     end
 
@@ -23,10 +25,10 @@ function M.setup()
         return
     end
 
-    local has_cmp_lsp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
     local capabilities = vim.lsp.protocol.make_client_capabilities()
-    if has_cmp_lsp then
-        capabilities = cmp_lsp.default_capabilities(capabilities)
+    local has_blink, blink = pcall(require, "blink.cmp")
+    if has_blink then
+        capabilities = blink.get_lsp_capabilities(capabilities)
     end
 
     vim.lsp.config.pyright = {
@@ -75,6 +77,14 @@ function M.setup()
         capabilities = capabilities,
     }
     vim.lsp.enable("clangd")
+
+    vim.lsp.config.marksman = {
+        cmd = { "marksman", "server" },
+        filetypes = { "markdown" },
+        root_markers = { ".marksman.toml", ".git" },
+        capabilities = capabilities,
+    }
+    vim.lsp.enable("marksman")
 end
 
 return M

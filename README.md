@@ -7,7 +7,7 @@ This repository contains a modular Neovim configuration built around:
 - native LSP on Neovim `0.11+`
 - Telescope for search and file picking
 - `nvim-tree` for file browsing
-- `nvim-cmp` for completion
+- `blink.cmp` for completion
 - a custom soft light theme inspired by `gruvbox light`
 
 The config is designed to work in both:
@@ -76,6 +76,12 @@ cd ~/.config/nvim
 ./install.sh
 ```
 
+The installer runs `:MasonToolsInstallSync` before finishing, so `pyright`, `lua-language-server`, `clangd`, and `marksman` are provisioned during setup. On a new machine this step can be slow; if it is interrupted, rerun:
+
+```bash
+nvim --headless "+MasonToolsInstallSync" +qall
+```
+
 ### Existing Configs And Migration
 
 - If `~/.config/nvim` already exists and is not this repository, the installer stops instead of overwriting it.
@@ -95,8 +101,8 @@ The Neovim entry file is `init.lua`, which loads `config.lua`. `config.lua` then
 - `lua/user/plugins.lua`: `vim-plug` plugin declarations
 - `lua/user/ui.lua`: `nvim-tree` and Telescope setup
 - `lua/user/lsp.lua`: Mason and built-in LSP configuration
-- `lua/user/completion.lua`: `nvim-cmp` setup
-- `lua/user/integrations.lua`: `Comment.nvim` and `gitsigns.nvim`
+- `lua/user/completion.lua`: `blink.cmp` setup
+- `lua/user/integrations.lua`: `gitsigns.nvim`
 
 ## Theme
 
@@ -153,7 +159,6 @@ When an LSP client is not attached, some mappings fall back to native motions an
 
 ### Plugin Defaults
 
-- `gc`, `gb`: comment toggles from `Comment.nvim`
 - `ys`, `ds`, `cs`: surround operations from `vim-surround`
 - `:Git`, `:Gdiffsplit`, `:Git blame`: common `vim-fugitive` commands
 
@@ -177,7 +182,7 @@ You get the full stack:
 - `nvim-tree`
 - `gitsigns`
 
-On first launch, Mason may still need a moment to install or finish setting up language servers such as `pyright`, `lua_ls`, and `clangd`.
+The installer synchronizes Mason-managed tools during setup, including `pyright`, `lua-language-server`, `clangd`, and `marksman`.
 
 ### VSCode / Kiro
 
@@ -185,7 +190,6 @@ You get a reduced setup:
 
 - shared keymaps where appropriate
 - `vim-surround`
-- `Comment.nvim`
 - `vim-fugitive`
 - VSCode-native search, explorer, LSP, and completion
 
